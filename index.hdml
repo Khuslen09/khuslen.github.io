@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Utilization Blog</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">Cloud Utilization</h1>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="#posts">Posts</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="tag">Tech Blog · Cloud · AI · Projects</p>
+        <h2>클라우드와 AI를 쉽게, 그러나 깊이 있게 기록하는 개인 블로그</h2>
+        <p class="hero-text">
+          컴퓨터공학과 경영학을 함께 공부하며,
+          클라우드, 인공지능, 프로젝트 경험을 논리적으로 정리하는 공간입니다.
+        </p>
+        <a class="btn" href="#posts">글 보러 가기</a>
+      </div>
+    </section>
+
+    <section class="section" id="posts">
+      <div class="container">
+        <h3 class="section-title">Latest Posts</h3>
+
+        <div class="post-grid">
+          <article class="card">
+            <p class="post-category">Cloud</p>
+            <h4>AWS와 클라우드 컴퓨팅 기초</h4>
+            <p>
+              클라우드 컴퓨팅의 개념부터 AWS의 핵심 서비스, 그리고 왜 기업들이
+              클라우드를 선택하는지 쉽게 정리한 글입니다.
+            </p>
+            <a href="cloud_blog_1.html" class="read-more">Read more →</a>
+          </article>
+
+          <article class="card">
+            <p class="post-category">AI</p>
+            <h4>AI Agent와 기업 업무 자동화</h4>
+            <p>
+              AI 에이전트가 실제 기업 업무에 어떻게 적용되는지,
+              기회와 리스크를 함께 살펴보는 글을 올릴 예정입니다.
+            </p>
+            <a href="#" class="read-more">Coming soon</a>
+          </article>
+
+          <article class="card">
+            <p class="post-category">Project</p>
+            <h4>개인 프로젝트 개발 기록</h4>
+            <p>
+              직접 개발한 앱과 서비스의 기획 배경, 기술 스택, 구현 과정,
+              개선 방향을 정리하는 개발 로그입니다.
+            </p>
+            <a href="#" class="read-more">Coming soon</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt-section">
+      <div class="container">
+        <h3 class="section-title">Why This Blog?</h3>
+        <p class="center-text">
+          단순히 정보를 나열하는 것이 아니라, 기술이 왜 중요한지,
+          실제 비즈니스와 어떻게 연결되는지까지 함께 정리하는 블로그를 지향합니다.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <h3 class="section-title">Contact</h3>
+        <p class="center-text">
+          GitHub: <a href="https://github.com/Khuslen09" target="_blank">Khuslen09</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 Cloud Utilization Blog. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
