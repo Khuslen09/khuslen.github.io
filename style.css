@@ -1,3 +1,11 @@
+:root {
+  --main-red: #ef4444;
+  --main-red-dark: #dc2626;
+  --black: #0f172a;
+  --gray: #475569;
+  --light-bg: #f8fafc;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -7,8 +15,8 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.7;
-  color: #222;
-  background: #f8fafc;
+  color: #111;
+  background: var(--light-bg);
 }
 
 a {
@@ -22,7 +30,7 @@ a {
 }
 
 .site-header {
-  background: #0f172a;
+  background: #000;
   color: white;
   padding: 18px 0;
   position: sticky;
@@ -39,6 +47,7 @@ a {
 .logo {
   font-size: 1.4rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .nav {
@@ -47,68 +56,73 @@ a {
 }
 
 .nav a {
-  color: #e2e8f0;
+  color: #aaa;
   transition: 0.2s;
 }
 
 .nav a:hover {
-  color: #ffffff;
+  color: white;
 }
 
+/* 🔥 HERO */
 .hero {
   padding: 100px 0 80px;
-  background: linear-gradient(135deg, #e0f2fe, #f8fafc);
+  background: white;
   text-align: center;
+  border-bottom: 1px solid #eee;
 }
 
 .tag {
-  color: #2563eb;
+  color: var(--main-red);
   font-weight: 700;
   margin-bottom: 12px;
 }
 
 .hero h2 {
-  font-size: 2.5rem;
+  font-size: 2.6rem;
   margin-bottom: 18px;
-  color: #0f172a;
+  color: #000;
 }
 
 .hero-text {
   max-width: 700px;
   margin: 0 auto 28px;
-  color: #475569;
+  color: var(--gray);
   font-size: 1.05rem;
 }
 
+/* 🔥 BUTTON */
 .btn {
   display: inline-block;
-  background: #2563eb;
+  background: var(--main-red);
   color: white;
-  padding: 12px 24px;
+  padding: 12px 26px;
   border-radius: 999px;
   font-weight: 600;
   transition: 0.2s;
 }
 
 .btn:hover {
-  background: #1d4ed8;
+  background: var(--main-red-dark);
 }
 
+/* SECTION */
 .section {
   padding: 70px 0;
 }
 
 .alt-section {
-  background: #eef4ff;
+  background: #f1f5f9;
 }
 
 .section-title {
   font-size: 2rem;
   margin-bottom: 28px;
   text-align: center;
-  color: #0f172a;
+  color: #000;
 }
 
+/* 🔥 CARD */
 .post-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -119,43 +133,49 @@ a {
   background: white;
   padding: 26px;
   border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #eee;
+  transition: 0.2s;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+  border-color: var(--main-red);
 }
 
+/* 🔥 CATEGORY */
 .post-category {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--main-red);
   margin-bottom: 8px;
 }
 
 .card h4 {
   font-size: 1.2rem;
   margin-bottom: 12px;
-  color: #0f172a;
+  color: #000;
 }
 
 .card p {
-  color: #475569;
+  color: var(--gray);
   margin-bottom: 16px;
 }
 
+/* 🔥 LINK */
 .read-more {
-  color: #2563eb;
+  color: var(--main-red);
   font-weight: 600;
+}
+
+.read-more:hover {
+  text-decoration: underline;
 }
 
 .center-text {
   max-width: 760px;
   margin: 0 auto;
   text-align: center;
-  color: #475569;
+  color: var(--gray);
 }
 
 .about-container {
@@ -167,14 +187,16 @@ a {
   color: #334155;
 }
 
+/* FOOTER */
 .site-footer {
-  background: #0f172a;
-  color: #cbd5e1;
+  background: #000;
+  color: #aaa;
   text-align: center;
   padding: 24px 0;
   margin-top: 30px;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .site-header .container {
     flex-direction: column;

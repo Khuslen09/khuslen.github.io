@@ -1,0 +1,460 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .blog-wrap {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--color-text-primary);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    line-height: 1.7;
+  }
+
+  .tag-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem;
+  }
+  .tag {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+    padding: 3px 10px; border-radius: 99px;
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    text-transform: uppercase;
+  }
+  .tag.accent {
+    background: #E6F1FB; color: #185FA5;
+    border-color: #B5D4F4;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+  }
+  .hero-title em {
+    font-style: italic;
+    color: #185FA5;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    max-width: 620px;
+    margin-bottom: 1.8rem;
+    font-weight: 300;
+  }
+
+  .meta-row {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: var(--color-text-secondary);
+    border-top: 0.5px solid var(--color-border-tertiary);
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    padding: 0.7rem 0; margin-bottom: 2.5rem;
+  }
+  .meta-dot { opacity: 0.35; }
+
+  .toc-box {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary); font-weight: 500; margin-bottom: 0.75rem; }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .toc-list li { font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .toc-list li:hover { color: #185FA5; }
+  .toc-num { font-size: 11px; color: var(--color-text-secondary); min-width: 20px; }
+
+  .section-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: #185FA5; font-weight: 500; margin-bottom: 0.5rem; display: block;
+  }
+
+  h2.section-head {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.65rem;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .prose {
+    font-size: 15.5px;
+    color: var(--color-text-primary);
+    margin-bottom: 1.2rem;
+    font-weight: 300;
+  }
+  .prose strong { font-weight: 500; }
+
+  .callout {
+    border-left: 3px solid #378ADD;
+    background: #E6F1FB;
+    color: #0C447C;
+    border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+    padding: 0.9rem 1.2rem;
+    font-size: 14.5px;
+    margin: 1.5rem 0;
+    line-height: 1.65;
+  }
+
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    margin: 2.5rem 0;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0 2rem;
+  }
+  .compare-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.2rem;
+    background: var(--color-background-primary);
+  }
+  .compare-card.on { border-top: 2px solid #E24B4A; }
+  .compare-card.cloud { border-top: 2px solid #185FA5; }
+  .compare-head {
+    font-size: 13px; font-weight: 500; margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-red { background: #E24B4A; }
+  .dot-blue { background: #185FA5; }
+  .compare-item {
+    font-size: 13px; color: var(--color-text-secondary);
+    padding: 5px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .compare-item:last-child { border-bottom: none; }
+  .compare-item .val { color: var(--color-text-primary); font-weight: 500; font-size: 12px; text-align: right; }
+
+  .infra-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 1.5rem 0 2rem;
+  }
+  .infra-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+    background: var(--color-background-primary);
+  }
+  .infra-icon {
+    width: 32px; height: 32px; border-radius: var(--border-radius-md);
+    margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .infra-card h3 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .infra-card p { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+  .region-factor {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .region-factor:last-child { border-bottom: none; }
+  .rf-icon {
+    min-width: 36px; height: 36px;
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .rf-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .rf-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+
+  .service-table {
+    width: 100%; border-collapse: collapse; font-size: 13.5px;
+    margin: 1.2rem 0 2rem;
+  }
+  .service-table th {
+    text-align: left; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--color-text-secondary);
+    font-weight: 500; padding: 6px 8px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .service-table td {
+    padding: 9px 8px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-primary);
+    vertical-align: top;
+  }
+  .service-table tr:last-child td { border-bottom: none; }
+  .service-name { font-weight: 500; }
+  .service-tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 99px; font-weight: 500;
+  }
+  .st-compute { background: #E6F1FB; color: #185FA5; }
+  .st-storage { background: #EAF3DE; color: #3B6D11; }
+  .st-db { background: #EEEDFE; color: #534AB7; }
+  .st-net { background: #FAEEDA; color: #854F0B; }
+  .st-sec { background: #FCEBEB; color: #A32D2D; }
+
+  .closing-box {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .closing-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem; margin-bottom: 0.75rem;
+  }
+  .closing-box p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.65; }
+
+  @media (max-width: 560px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .infra-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="brand">LenLab</a>
+    <nav class="nav">
+      <a href="index.html#projects">프로젝트</a>
+      <a href="index.html#notes">랩 노트</a>
+      <a href="about.html">소개</a>
+      <a href="../en/cloud_blog_1.html">EN</a>
+    </nav>
+  </div>
+</header>
+
+<div class="blog-wrap">
+
+  <div class="tag-row">
+    <span class="tag accent">AWS</span>
+    <span class="tag">Cloud Computing</span>
+    <span class="tag">Architecture</span>
+    <span class="tag">인프라</span>
+  </div>
+
+  <h1 class="hero-title">클라우드, 왜 지금<br><em>선택이 아닌 기본값</em>이 됐나</h1>
+  <p class="hero-sub">온프레미스의 한계에서 AWS 글로벌 인프라까지 — 클라우드 컴퓨팅의 핵심 개념과 실무 판단 기준을 정리했습니다.</p>
+
+  <div class="meta-row">
+    <span>Cloud Specialist Blog</span>
+    <span class="meta-dot">|</span>
+    <span>1주차 강의 기반</span>
+    <span class="meta-dot">|</span>
+    <span>읽는 시간 약 8분</span>
+  </div>
+
+  <div class="toc-box">
+    <p class="toc-title">목차</p>
+    <ul class="toc-list">
+      <li><span class="toc-num">01</span> 클라우드 컴퓨팅이란 무엇인가</li>
+      <li><span class="toc-num">02</span> 온프레미스 vs 클라우드 — 실질적 차이</li>
+      <li><span class="toc-num">03</span> AWS 탄생 배경과 핵심 서비스</li>
+      <li><span class="toc-num">04</span> AWS 글로벌 인프라 구조</li>
+      <li><span class="toc-num">05</span> 리전 선택 — 기술+법률+비용의 트리플 레이어</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1 -->
+  <span class="section-label">01 — 개념</span>
+  <h2 class="section-head">클라우드 컴퓨팅이란 무엇인가</h2>
+
+  <p class="prose">
+    NIST(미국 국립표준기술연구소)는 클라우드 컴퓨팅을 <strong>공유 풀에 접근하여 컴퓨팅 자원을 필요할 때 사용하고 반납하는 모델</strong>로 정의합니다. 이 정의에서 핵심은 두 가지입니다. "온디맨드(on-demand)"와 "사용량 기반 과금(pay-as-you-go)".
+  </p>
+  <p class="prose">
+    과거에는 서버를 구매하고, 설치하고, 유지하는 데만 수개월이 소요됐습니다. 클라우드는 이 사이클을 분(分) 단위로 압축했습니다. 인프라가 비즈니스 속도에 맞춰 움직이는 시대가 된 것입니다.
+  </p>
+
+  <div class="callout">
+    핵심 전환: 자본지출(CapEx) → 운영지출(OpEx). 자산을 소유하는 대신 서비스를 구독하는 방식으로 IT 경제학이 바뀌었습니다.
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 2 -->
+  <span class="section-label">02 — 비교</span>
+  <h2 class="section-head">온프레미스 vs 클라우드</h2>
+
+  <p class="prose">
+    "무조건 클라우드"라는 주장은 틀렸습니다. 두 환경은 <strong>트레이드오프</strong> 관계이며, 데이터 민감도·초기 투자 여력·내부 인력 수준에 따라 선택이 달라집니다.
+  </p>
+
+  <div class="compare-grid">
+    <div class="compare-card on">
+      <div class="compare-head"><div class="dot dot-red"></div>온프레미스 (On-Premise)</div>
+      <div class="compare-item"><span>서버 소유</span><span class="val">기업 직접 구축</span></div>
+      <div class="compare-item"><span>초기 비용</span><span class="val">높음 (CapEx)</span></div>
+      <div class="compare-item"><span>유지보수</span><span class="val">내부 IT 인력</span></div>
+      <div class="compare-item"><span>확장성</span><span class="val">하드웨어 증설, 느림</span></div>
+      <div class="compare-item"><span>가용성</span><span class="val">수동 이중화 필요</span></div>
+      <div class="compare-item"><span>보안 정책</span><span class="val">자체 구축 가능</span></div>
+    </div>
+    <div class="compare-card cloud">
+      <div class="compare-head"><div class="dot dot-blue"></div>클라우드 (Cloud)</div>
+      <div class="compare-item"><span>서버 소유</span><span class="val">공급자 제공·관리</span></div>
+      <div class="compare-item"><span>초기 비용</span><span class="val">낮음 (OpEx)</span></div>
+      <div class="compare-item"><span>유지보수</span><span class="val">공급자 담당</span></div>
+      <div class="compare-item"><span>확장성</span><span class="val">자동 확장, 빠름</span></div>
+      <div class="compare-item"><span>가용성</span><span class="val">다중 AZ 고가용성</span></div>
+      <div class="compare-item"><span>보안 정책</span><span class="val">책임 공유 모델</span></div>
+    </div>
+  </div>
+
+  <p class="prose">
+    온프레미스가 유리한 상황은 여전히 존재합니다. <strong>극도로 민감한 데이터</strong>를 다루거나, 초기 투자 여력이 충분하고, 자체 IT 인력을 보유한 경우입니다. 그러나 대부분의 스타트업과 성장 기업에겐 클라우드의 탄력성이 결정적 경쟁 우위가 됩니다.
+  </p>
+
+  <hr class="divider">
+
+  <!-- SECTION 3 -->
+  <span class="section-label">03 — AWS</span>
+  <h2 class="section-head">AWS는 어떻게 탄생했나</h2>
+
+  <p class="prose">
+    아마존은 원래 물류 회사입니다. 하지만 내부 IT 인프라가 너무 복잡해지면서 "이걸 표준화하지 않으면 성장 속도가 꺾인다"는 판단을 내립니다. 2002년 제프 베조스가 사내에 보낸 메일이 이 전환점입니다.
+  </p>
+
+  <div class="callout">
+    베조스 메일의 핵심: 모든 팀은 서비스 인터페이스로만 통신하라. 그리고 그 인터페이스는 처음부터 외부 개발자도 쓸 수 있도록 설계하라. 이 원칙이 AWS의 DNA가 됩니다.
+  </div>
+
+  <p class="prose">
+    2006년, 아마존은 EC2와 S3를 시작으로 상업용 퍼블릭 클라우드를 출시합니다. IT 인프라 서비스 제공자에서 클라우드 플랫폼 선도 기업으로 포지션을 전환한 것입니다.
+  </p>
+
+  <p class="prose">AWS 주요 서비스 카테고리를 정리하면 다음과 같습니다.</p>
+
+  <table class="service-table">
+    <thead>
+      <tr>
+        <th>영역</th>
+        <th>대표 서비스</th>
+        <th>분류</th>
+        <th>역할 요약</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="service-name">컴퓨팅</td>
+        <td>EC2, Lambda, EKS</td>
+        <td><span class="service-tag st-compute">Compute</span></td>
+        <td style="color:var(--color-text-secondary);font-size:13px;">가상 서버 또는 서버리스 실행</td>
+      </tr>
+      <tr>
+        <td class="service-name">스토리지</td>
+        <td>S3, EBS, EFS</td>
+        <td><span class="service-tag st-storage">Storage</span></td>
+        <td style="color:var(--color-text-secondary);font-size:13px;">객체 / 블록 스토리지</td>
+      </tr>
+      <tr>
+        <td class="service-name">데이터베이스</td>
+        <td>RDS, DynamoDB, Aurora</td>
+        <td><span class="service-tag st-db">Database</span></td>
+        <td style="color:var(--color-text-secondary);font-size:13px;">관계형 / NoSQL 관리형 DB</td>
+      </tr>
+      <tr>
+        <td class="service-name">네트워킹</td>
+        <td>VPC, CloudFront, ELB</td>
+        <td><span class="service-tag st-net">Network</span></td>
+        <td style="color:var(--color-text-secondary);font-size:13px;">가상 네트워크, CDN, 로드밸런서</td>
+      </tr>
+      <tr>
+        <td class="service-name">보안</td>
+        <td>IAM, WAF, GuardDuty</td>
+        <td><span class="service-tag st-sec">Security</span></td>
+        <td style="color:var(--color-text-secondary);font-size:13px;">접근 권한, 위협 탐지, 암호화</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- SECTION 4 -->
+  <span class="section-label">04 — 인프라</span>
+  <h2 class="section-head">AWS 글로벌 인프라 구조</h2>
+
+  <p class="prose">
+    AWS의 물리적 인프라는 세 계층으로 구성됩니다. 리전(Region) → 가용 영역(AZ) → 엣지 로케이션(Edge Location). 이 구조를 이해하지 않으면 고가용성 설계가 불가능합니다.
+  </p>
+
+  <div class="infra-grid">
+    <div class="infra-card">
+      <div class="infra-icon" style="background:#E6F1FB;">🌍</div>
+      <h3>리전 (Region)</h3>
+      <p>지리적으로 분리된 AWS 데이터센터 클러스터. 서울(ap-northeast-2), 버지니아(us-east-1) 등 수십 개 존재. 리전 간 데이터는 자동으로 복제되지 않습니다.</p>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon" style="background:#EEEDFE;">⚡</div>
+      <h3>가용 영역 (AZ)</h3>
+      <p>리전 내 물리적으로 분리된 데이터센터 그룹. 각 리전은 최소 3개 AZ로 구성. 하나의 AZ 장애가 다른 AZ에 전파되지 않도록 설계됩니다.</p>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon" style="background:#EAF3DE;">🔗</div>
+      <h3>엣지 로케이션</h3>
+      <p>CloudFront CDN 캐싱을 위한 엣지 노드. 리전보다 훨씬 많은 수로 분산되어, 최종 사용자에게 가장 가까운 지점에서 콘텐츠를 서빙합니다.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    실무 포인트: 고가용성(HA) 아키텍처의 기본은 멀티-AZ 배포입니다. 동일 리전 내 서로 다른 AZ에 애플리케이션을 분산해야 단일 장애 지점(SPOF)을 제거할 수 있습니다.
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 5 -->
+  <span class="section-label">05 — 의사결정</span>
+  <h2 class="section-head">리전 선택 — 기술·법률·비용의 트리플 레이어</h2>
+
+  <p class="prose">
+    리전 선택은 단순히 "가까운 곳"을 고르는 문제가 아닙니다. 기술(지연), 규제(데이터 주권), 비용(리전별 요금 차이) 세 축을 동시에 고려해야 합니다.
+  </p>
+
+  <div style="margin: 1.5rem 0 2rem;">
+    <div class="region-factor">
+      <div class="rf-icon">⏱</div>
+      <div>
+        <div class="rf-title">지연 시간 (Latency)</div>
+        <div class="rf-desc">한국 사용자 대상 서비스라면 서울 리전(ap-northeast-2)이 기본값. 사용자와 서버 간 물리적 거리가 RTT(왕복 지연)에 직접 영향을 미칩니다.</div>
+      </div>
+    </div>
+    <div class="region-factor">
+      <div class="rf-icon">🔧</div>
+      <div>
+        <div class="rf-title">서비스 가용성 (Supported Services)</div>
+        <div class="rf-desc">신규 서비스는 특정 리전에서 먼저 출시됩니다. AI 서비스(Amazon Bedrock 등)는 북미·유럽 리전 중심으로 먼저 제공되는 경우가 많습니다.</div>
+      </div>
+    </div>
+    <div class="region-factor">
+      <div class="rf-icon">💰</div>
+      <div>
+        <div class="rf-title">비용 (Cost)</div>
+        <div class="rf-desc">동일 스펙의 EC2 인스턴스라도 리전별 요금 차이가 존재합니다. 서울 리전은 일반적으로 오하이오보다 약간 높습니다. 대규모 워크로드라면 비용 최적화 리전 전략이 필요합니다.</div>
+      </div>
+    </div>
+    <div class="region-factor">
+      <div class="rf-icon">⚖️</div>
+      <div>
+        <div class="rf-title">법률 및 데이터 주권 (Compliance)</div>
+        <div class="rf-desc">금융권은 전자금융감독규정에 따라 중요 정보의 국내 저장이 원칙이며, 해외 리전 사용 시 금감원 사전 승인이 필요합니다. 의료기관은 의료법·개인정보보호법, 공공기관은 CSAP 인증 리전 사용이 필수입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="closing-box">
+    <h3>마무리하며</h3>
+    <p>클라우드는 기술 선택지가 아닌 <strong>운영 철학</strong>의 변화입니다. 온프레미스가 "소유"를 전제로 한다면, 클라우드는 "사용"을 전제로 합니다. AWS는 이 철학을 가장 넓은 생태계 위에서 구현한 플랫폼입니다. 리전·AZ·서비스 조합을 이해하는 것이 실무 클라우드 설계의 출발점입니다. 다음 포스팅에서는 VPC와 네트워크 보안 그룹 설계를 구체적으로 다뤄보겠습니다.</p>
+  </div>
+
+</div>

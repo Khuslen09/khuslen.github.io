@@ -1,99 +1,2294 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cloud Utilization Blog</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>LENLAB — Knowledge. Curated.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Sans+Mongolian&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ===== RESET & TOKENS ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* DARK MODE (default) */
+      --black: #0a0a0a;
+      --white: #f4f2ee;
+      --off-white: #e8e4dc;
+      --red: #c8001a;
+      --red-dim: #8b0012;
+      --gray-800: #1a1a1a;
+      --gray-600: #333333;
+      --gray-400: #666666;
+      --gray-200: #999999;
+
+      /* THEME TOKENS (swap on light mode) */
+      --bg: #0a0a0a;
+      --bg-alt: #1a1a1a;
+      --text: #f4f2ee;
+      --text-dim: #999999;
+      --text-muted: #666666;
+      --text-faint: #333333;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-dim: rgba(255, 255, 255, 0.07);
+      --grid-line: rgba(255, 255, 255, 0.025);
+      --card-bg: #0a0a0a;
+      --card-hover: #1a1a1a;
+      --vision-bg: #f4f2ee;
+      --vision-alt: #e8e4dc;
+      --vision-text: #0a0a0a;
+      --vision-dim: #666666;
+      --vision-border: rgba(0, 0, 0, 0.1);
+      --cursor-ring: rgba(200, 0, 26, 0.5);
+      --marquee-bg: #1a1a1a;
+      --noise-opacity: 0.3;
+      --footer-bg: #1a1a1a;
+
+      --font-serif: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-sans: 'Noto Sans KR', sans-serif;
+    }
+
+    /* ===== LIGHT MODE ===== */
+    html.light {
+      --bg: #f7f5f0;
+      --bg-alt: #edeae3;
+      --text: #0a0a0a;
+      --text-dim: #444444;
+      --text-muted: #777777;
+      --text-faint: #aaaaaa;
+      --border: rgba(0, 0, 0, 0.07);
+      --border-dim: rgba(0, 0, 0, 0.08);
+      --grid-line: rgba(0, 0, 0, 0.04);
+      --card-bg: #f7f5f0;
+      --card-hover: #edeae3;
+      --vision-bg: #0a0a0a;
+      --vision-alt: #1a1a1a;
+      --vision-text: #f4f2ee;
+      --vision-dim: #999999;
+      --vision-border: rgba(255, 255, 255, 0.08);
+      --cursor-ring: rgba(200, 0, 26, 0.4);
+      --marquee-bg: #edeae3;
+      --noise-opacity: 0.12;
+      --footer-bg: #edeae3;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      transition: background 0.4s;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    /* ===== CUSTOM CURSOR ===== */
+    .cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(200, 0, 26, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+    }
+
+    body:has(a:hover) .cursor {
+      width: 12px;
+      height: 12px;
+      background: var(--text);
+    }
+
+    body:has(a:hover) .cursor-ring {
+      width: 50px;
+      height: 50px;
+      border-color: var(--text);
+    }
+
+    /* ===== NOISE OVERLAY ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: var(--noise-opacity);
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+    }
+
+    nav.scrolled {
+      border-color: var(--border-dim);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(16px);
+    }
+
+    html.light nav.scrolled {
+      background: rgba(247, 245, 240, 0.88);
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.7);
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--red);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-lang {
+      display: flex;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-lang button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.3s;
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: inherit;
+      padding: 2px 0;
+    }
+
+    .nav-lang button.active,
+    .nav-lang button:hover {
+      color: var(--red);
+    }
+
+    /* ===== THEME TOGGLE ===== */
+    .theme-toggle {
+      width: 40px;
+      height: 22px;
+      background: var(--text-faint);
+      border-radius: 11px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg);
+      transition: transform 0.3s, background 0.3s;
+    }
+
+    html.light .theme-toggle {
+      background: var(--red);
+    }
+
+    html.light .theme-toggle::after {
+      transform: translateX(18px);
+    }
+
+    .theme-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+    }
+
+    .theme-toggle-icon {
+      font-size: 12px;
+      line-height: 1;
+      user-select: none;
+      transition: opacity 0.3s;
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 0 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 80px 80px;
+    }
+
+    .hero-vline {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(200, 0, 26, 0.2) 40%, rgba(200, 0, 26, 0.05) 100%);
+    }
+
+    .hero-circle {
+      position: absolute;
+      right: -200px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      animation: spin 60s linear infinite;
+    }
+
+    .hero-circle::after {
+      content: '';
+      position: absolute;
+      inset: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(200, 0, 26, 0.08);
+    }
+
+    @keyframes spin {
+      from {
+        transform: translateY(-50%) rotate(0deg);
+      }
+
+      to {
+        transform: translateY(-50%) rotate(360deg);
+      }
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(52px, 7.5vw, 108px);
+      font-weight: 300;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp 1s 0.4s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .hero-title .red {
+      color: var(--red);
+    }
+
+    .hero-desc {
+      margin-top: 48px;
+      max-width: 480px;
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .hero-meta {
+      margin-top: 56px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      opacity: 0;
+      animation: fadeUp 0.8s 1s forwards;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--red);
+      padding-bottom: 4px;
+      transition: color 0.3s;
+    }
+
+    .hero-cta:hover {
+      color: var(--red);
+    }
+
+    .hero-cta svg {
+      transition: transform 0.3s;
+    }
+
+    .hero-cta:hover svg {
+      transform: translateX(4px);
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      border: 1px solid var(--text-faint);
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      right: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeIn 1s 1.5s forwards;
+    }
+
+    .hero-scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--text-faint), transparent);
+      animation: scrollLine 2s 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollLine {
+      0% {
+        transform: scaleY(1);
+        transform-origin: top;
+        opacity: 1;
+      }
+
+      50% {
+        transform: scaleY(0);
+        transform-origin: top;
+        opacity: 0;
+      }
+
+      51% {
+        transform: scaleY(0);
+        transform-origin: bottom;
+      }
+
+      100% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ===== MARQUEE ===== */
+    .marquee-strip {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      padding: 16px 0;
+      background: var(--marquee-bg);
+      transition: background 0.4s;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 28s linear infinite;
+      white-space: nowrap;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 40px;
+    }
+
+    .marquee-dot {
+      color: var(--red);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* ===== SECTION COMMON ===== */
+    section {
+      padding: 120px 48px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 72px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--red);
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 5vw, 72px);
+      font-weight: 300;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .view-all {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px solid var(--text-faint);
+      padding-bottom: 2px;
+      transition: color 0.3s, border-color 0.3s;
+      flex-shrink: 0;
+    }
+
+    .view-all:hover {
+      color: var(--text);
+      border-color: var(--text);
+    }
+
+    /* ===== ABOUT ===== */
+    #about {
+      background: var(--bg-alt);
+      transition: background 0.4s;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .about-left {}
+
+    .about-portrait {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--text-faint);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-portrait-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg-alt) 100%);
+    }
+
+    .about-portrait-frame {
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(200, 0, 26, 0.2);
+      pointer-events: none;
+    }
+
+    .about-portrait-tag {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 8px;
+    }
+
+    html.light .about-portrait-tag {
+      background: rgba(255, 255, 255, 0.7);
+      color: #444;
+    }
+
+    .about-right {}
+
+    .about-intro {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 2.5vw, 34px);
+      font-weight: 300;
+      line-height: 1.4;
+      color: var(--text);
+      margin-bottom: 40px;
+    }
+
+    .about-intro em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .about-body {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.9;
+      margin-bottom: 48px;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      margin-bottom: 48px;
+    }
+
+    .stat {
+      background: var(--bg-alt);
+      padding: 28px 24px;
+    }
+
+    .stat-num {
+      font-family: var(--font-serif);
+      font-size: 48px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .stat-num span {
+      color: var(--red);
+      font-size: 24px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .about-skills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .skill-chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border: 1px solid var(--border-dim);
+      padding: 6px 14px;
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .skill-chip:hover {
+      border-color: var(--red);
+      color: var(--text);
+    }
+
+    /* ===== CATEGORIES ===== */
+    #categories {
+      background: var(--bg);
+      transition: background 0.4s;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .cat-card {
+      background: var(--card-bg);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: background 0.4s;
+    }
+
+    .cat-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+
+    .cat-card:hover {
+      background: var(--card-hover);
+    }
+
+    .cat-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .cat-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-faint);
+      margin-bottom: 32px;
+    }
+
+    .cat-icon {
+      font-size: 28px;
+      margin-bottom: 20px;
+      display: block;
+      transition: transform 0.3s;
+      color: var(--text);
+    }
+
+    .cat-card:hover .cat-icon {
+      transform: translateY(-4px);
+    }
+
+    .cat-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .cat-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .cat-count {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--red);
+    }
+
+    /* ===== FEATURED POSTS ===== */
+    #posts {
+      background: var(--bg-alt);
+      transition: background 0.4s;
+    }
+
+    .posts-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .post-card {
+      background: var(--bg-alt);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 320px;
+      cursor: pointer;
+    }
+
+    .post-card:hover {
+      background: var(--card-hover);
+    }
+
+    .post-card.featured {
+      grid-row: 1 / 3;
+    }
+
+    .post-cat-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      border: 1px solid var(--red-dim);
+      padding: 4px 10px;
+      margin-bottom: 24px;
+      align-self: flex-start;
+    }
+
+    .post-title {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 2.5vw, 38px);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 20px;
+      transition: color 0.3s;
+    }
+
+    .post-card:hover .post-title {
+      color: var(--text-dim);
+    }
+
+    .post-excerpt {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .post-arrow {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: border-color 0.3s, background 0.3s, color 0.3s;
+    }
+
+    .post-card:hover .post-arrow {
+      border-color: var(--red);
+      background: var(--red);
+      color: var(--white);
+    }
+
+    /* ===== PROJECTS ===== */
+    #projects {
+      background: var(--bg);
+      transition: background 0.4s;
+    }
+
+    .projects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .project-row {
+      display: grid;
+      grid-template-columns: 60px 1fr auto auto;
+      align-items: center;
+      gap: 40px;
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: padding-left 0.3s;
+    }
+
+    .project-row:hover {
+      padding-left: 12px;
+    }
+
+    .project-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-faint);
+    }
+
+    .project-name {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 6px;
+      transition: color 0.3s;
+    }
+
+    .project-row:hover .project-name {
+      color: var(--text-dim);
+    }
+
+    .project-tags-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .project-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--text-faint);
+      text-transform: uppercase;
+    }
+
+    .project-year {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-faint);
+    }
+
+    .project-link-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+      transition: border-color 0.3s, color 0.3s;
+    }
+
+    .project-row:hover .project-link-icon {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* ===== VISION ===== */
+    #vision {
+      background: var(--vision-bg);
+      color: var(--vision-text);
+      transition: background 0.4s, color 0.4s;
+    }
+
+    #vision .section-label {
+      color: var(--red);
+    }
+
+    #vision .section-label::before {
+      background: var(--red);
+    }
+
+    #vision .section-title {
+      color: var(--vision-text);
+    }
+
+    #vision .section-title em {
+      color: var(--vision-dim);
+    }
+
+    #vision .view-all {
+      color: var(--vision-dim);
+      border-color: var(--vision-dim);
+    }
+
+    #vision .view-all:hover {
+      color: var(--vision-text);
+      border-color: var(--vision-text);
+    }
+
+    .vision-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--vision-border);
+    }
+
+    .vision-card {
+      background: var(--vision-bg);
+      padding: 56px 48px;
+      position: relative;
+      transition: background 0.4s;
+    }
+
+    .vision-card:nth-child(odd) {
+      background: var(--vision-alt);
+    }
+
+    .vision-phase {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 24px;
+    }
+
+    .vision-title {
+      font-family: var(--font-serif);
+      font-size: 34px;
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--vision-text);
+      margin-bottom: 20px;
+    }
+
+    .vision-title em {
+      font-style: italic;
+      color: var(--vision-dim);
+    }
+
+    .vision-desc {
+      font-size: 13px;
+      color: var(--vision-dim);
+      line-height: 1.85;
+    }
+
+    .vision-tag {
+      position: absolute;
+      top: 32px;
+      right: 32px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--vision-border);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== NEWSLETTER ===== */
+    #newsletter {
+      background: var(--bg);
+      text-align: center;
+      padding: 160px 48px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+    }
+
+    #newsletter::before {
+      content: 'LENLAB';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-serif);
+      font-size: clamp(120px, 20vw, 280px);
+      font-weight: 300;
+      color: var(--border-dim);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: -0.05em;
+    }
+
+    .newsletter-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 32px;
+    }
+
+    .newsletter-title {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 6vw, 88px);
+      font-weight: 300;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .newsletter-title em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .newsletter-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 56px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border-dim);
+      border-right: none;
+      color: var(--text);
+      padding: 16px 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .newsletter-input:focus {
+      border-color: rgba(200, 0, 26, 0.5);
+    }
+
+    .newsletter-input::placeholder {
+      color: var(--text-faint);
+    }
+
+    .newsletter-btn {
+      background: var(--red);
+      border: 1px solid var(--red);
+      color: var(--white);
+      padding: 16px 32px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .newsletter-btn:hover {
+      background: var(--red-dim);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--gray-800);
+      padding: 60px 48px 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 60px;
+    }
+
+    .footer-brand {}
+
+    .footer-logo {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      letter-spacing: 0.2em;
+      color: var(--white);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-logo-dot {
+      color: var(--red);
+    }
+
+    .footer-tagline {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--gray-400);
+      line-height: 1.6;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--gray-400);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--white);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--gray-600);
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-socials a {
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: color 0.3s;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .footer-socials a:hover {
+      color: var(--red);
+    }
+
+    /* ===== LANGUAGE CONTENT ===== */
+    [data-lang] {
+      display: none;
+    }
+
+    [data-lang="ko"] {
+      display: block;
+    }
+
+    .inline-lang {
+      display: none;
+    }
+
+    .inline-lang.ko {
+      display: inline;
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      nav {
+        padding: 20px 32px;
+      }
+
+      section {
+        padding: 80px 32px;
+      }
+
+      #hero {
+        padding: 0 32px 60px;
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .about-portrait {
+        max-width: 300px;
+      }
+
+      .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .posts-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .post-card.featured {
+        grid-row: auto;
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .vision-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 16px 24px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      section {
+        padding: 60px 24px;
+      }
+
+      #hero {
+        padding: 0 24px 48px;
+      }
+
+      .categories-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .newsletter-input {
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+        border-bottom: none;
+      }
+
+      .hero-scroll {
+        right: 24px;
+      }
+
+      .about-stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .project-row {
+        grid-template-columns: 40px 1fr auto;
+      }
+
+      .project-year {
+        display: none;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1 class="logo">Cloud Utilization</h1>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="#posts">Posts</a>
-        <a href="#contact">Contact</a>
-      </nav>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav id="mainNav">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      LENLAB
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about"><span class="inline-lang ko">소개</span><span class="inline-lang en">About</span><span
+            class="inline-lang mn">Тухай</span></a></li>
+      <li><a href="#categories"><span class="inline-lang ko">카테고리</span><span
+            class="inline-lang en">Categories</span><span class="inline-lang mn">Ангилал</span></a></li>
+      <li><a href="#posts"><span class="inline-lang ko">블로그</span><span class="inline-lang en">Blog</span><span
+            class="inline-lang mn">Блог</span></a></li>
+      <li><a href="#projects"><span class="inline-lang ko">프로젝트</span><span class="inline-lang en">Projects</span><span
+            class="inline-lang mn">Төслүүд</span></a></li>
+      <li><a href="#vision"><span class="inline-lang ko">비전</span><span class="inline-lang en">Vision</span><span
+            class="inline-lang mn">Алсын хараа</span></a></li>
+    </ul>
+    <div class="nav-lang">
+      <button onclick="setLang('ko')" class="active" id="btn-ko">KO</button>
+      <button onclick="setLang('en')" id="btn-en">EN</button>
+      <button onclick="setLang('mn')" id="btn-mn">MN</button>
     </div>
-  </header>
+  </nav>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <p class="tag">Tech Blog · Cloud · AI · Projects</p>
-        <h2>클라우드와 AI를 쉽게, 그러나 깊이 있게 기록하는 개인 블로그</h2>
-        <p class="hero-text">
-          컴퓨터공학과 경영학을 함께 공부하며,
-          클라우드, 인공지능, 프로젝트 경험을 논리적으로 정리하는 공간입니다.
-        </p>
-        <a class="btn" href="#posts">글 보러 가기</a>
-      </div>
-    </section>
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-grid-lines"></div>
+    <div class="hero-vline"></div>
+    <div class="hero-circle"></div>
 
-    <section class="section" id="posts">
-      <div class="container">
-        <h3 class="section-title">Latest Posts</h3>
-
-        <div class="post-grid">
-          <article class="card">
-            <p class="post-category">Cloud</p>
-            <h4>AWS와 클라우드 컴퓨팅 기초</h4>
-            <p>
-              클라우드 컴퓨팅의 개념부터 AWS의 핵심 서비스, 그리고 왜 기업들이
-              클라우드를 선택하는지 쉽게 정리한 글입니다.
-            </p>
-            <a href="cloud_blog_1.html" class="read-more">Read more →</a>
-          </article>
-
-          <article class="card">
-            <p class="post-category">AI</p>
-            <h4>AI Agent와 기업 업무 자동화</h4>
-            <p>
-              AI 에이전트가 실제 기업 업무에 어떻게 적용되는지,
-              기회와 리스크를 함께 살펴보는 글을 올릴 예정입니다.
-            </p>
-            <a href="#" class="read-more">Coming soon</a>
-          </article>
-
-          <article class="card">
-            <p class="post-category">Project</p>
-            <h4>개인 프로젝트 개발 기록</h4>
-            <p>
-              직접 개발한 앱과 서비스의 기획 배경, 기술 스택, 구현 과정,
-              개선 방향을 정리하는 개발 로그입니다.
-            </p>
-            <a href="#" class="read-more">Coming soon</a>
-          </article>
+    <div class="hero-content">
+      <p class="hero-eyebrow">
+        <span class="inline-lang ko">지식 큐레이션 공간</span>
+        <span class="inline-lang en">Knowledge Curation Space</span>
+        <span class="inline-lang mn">Мэдлэгийн орон зай</span>
+        &nbsp;—&nbsp; EST. 2026
+      </p>
+      <h1 class="hero-title">
+        <span data-lang="ko">지식을<br><em>나누는</em><br><span class="red">공간.</span></span>
+        <span data-lang="en">Space for<br><em>sharing</em><br><span class="red">knowledge.</span></span>
+        <span data-lang="mn">Мэдлэг<br><em>хуваалцах</em><br><span class="red">орон зай.</span></span>
+      </h1>
+      <p class="hero-desc">
+        <span data-lang="ko">컴퓨터과학과 경영학을 공부하는 유학생이 만드는 개인 지식 공간. 블로그, 프로젝트, 강의 노트, 뉴스 큐레이션을 통해 배움을 나눕니다. 미래에는 온라인 지식
+          플랫폼으로 성장합니다.</span>
+        <span data-lang="en">A personal knowledge space by an international student studying CS & Business. Sharing
+          learning through blogs, projects, lecture notes, and curated news. Growing into an online knowledge
+          platform.</span>
+        <span data-lang="mn">Компьютерийн шинжлэх ухаан, менежмент судалж буй оюутны хувийн мэдлэгийн бренд. Блог,
+          төсөл, лекцийн тэмдэглэл, мэдээгээр дамжуулан мэдлэг хуваалцах орон зай.</span>
+      </p>
+      <div class="hero-meta">
+        <a href="#posts" class="hero-cta">
+          <span data-lang="ko">최신 글 읽기</span>
+          <span data-lang="en">Read Latest</span>
+          <span data-lang="mn">Сүүлийн нийтлэл унших</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </a>
+        <div class="hero-tags">
+          <span class="hero-tag">CS</span>
+          <span class="hero-tag">Business</span>
+          <span class="hero-tag">KR / EN / MN</span>
+          <span class="hero-tag">Knowledge</span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="section alt-section">
-      <div class="container">
-        <h3 class="section-title">Why This Blog?</h3>
-        <p class="center-text">
-          단순히 정보를 나열하는 것이 아니라, 기술이 왜 중요한지,
-          실제 비즈니스와 어떻게 연결되는지까지 함께 정리하는 블로그를 지향합니다.
+    <div class="hero-scroll">
+      <div class="hero-scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span class="marquee-item">Blog <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Projects <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Lecture Notes <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Knowledge <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Tech News <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Business Insight <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Learning <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">블로그 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">프로젝트 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">강의 노트 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">지식 나눔 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Блог <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Мэдлэг <span class="marquee-dot">·</span></span>
+      <!-- Duplicate for infinite -->
+      <span class="marquee-item">Blog <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Projects <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Lecture Notes <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Knowledge <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Tech News <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Business Insight <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Learning <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">블로그 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">프로젝트 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">강의 노트 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">지식 나눔 <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Блог <span class="marquee-dot">·</span></span>
+      <span class="marquee-item">Мэдлэг <span class="marquee-dot">·</span></span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">
+          <span data-lang="ko">소개</span>
+          <span data-lang="en">About</span>
+          <span data-lang="mn">Тухай</span>
+        </p>
+        <h2 class="section-title">
+          <span data-lang="ko">안녕하세요,<br><em>LENLAB입니다.</em></span>
+          <span data-lang="en">Hello,<br><em>This is LENLAB.</em></span>
+          <span data-lang="mn">Сайн байна уу,<br><em>LENLAB-д тавтай морил.</em></span>
+        </h2>
+      </div>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-left reveal">
+        <div class="about-portrait">
+          <div class="about-portrait-placeholder">
+            <span>Photo coming soon</span>
+          </div>
+          <div class="about-portrait-frame"></div>
+          <div class="about-portrait-tag">KHUSLEN · LENLAB</div>
+        </div>
+      </div>
+      <div class="about-right reveal">
+        <p class="about-intro">
+          <span data-lang="ko">컴퓨터과학 <em>&</em> 경영학을 공부하는<br>유학생.</span>
+          <span data-lang="en">International student<br>studying <em>CS & Business.</em></span>
+          <span data-lang="mn">Компьютерийн шинжлэх ухаан <em>&</em><br>Менежмент судалж буй оюутан.</span>
+        </p>
+        <p class="about-body">
+          <span data-lang="ko">배우는 것을 나누는 것이 가장 좋은 학습 방법이라 믿습니다. LENLAB은 제가 공부하고, 발견하고, 고민한 것들을 한국어·영어·몽골어로 기록하는 개인 지식
+            브랜드입니다. CS의 논리적 사고와 경영의 전략적 시각을 결합해 세상을 이해하려 합니다. 미래에는 이 공간이 더 많은 사람들이 지식에 접근할 수 있는 온라인 플랫폼으로 성장하길
+            바랍니다.</span>
+          <span data-lang="en">I believe sharing what you learn is the best way to learn. LENLAB is a personal knowledge
+            brand where I document what I study, discover, and think about — in Korean, English, and Mongolian. I try to
+            understand the world by combining CS logical thinking with business strategic perspective. I hope this space
+            grows into an online platform that makes knowledge accessible to more people.</span>
+          <span data-lang="mn">Сурсан зүйлээ хуваалцах нь хамгийн сайн суралцах арга гэдэгт би итгэдэг. LENLAB бол миний
+            судалж, нээж, боддог зүйлсийг Солонгос, Англи, Монгол хэлээр бичиж тэмдэглэх хувийн мэдлэгийн орон зай
+            юм.</span>
+        </p>
+        <div class="about-stats">
+          <div class="stat">
+            <div class="stat-num">3<span>+</span></div>
+            <div class="stat-label">
+              <span data-lang="ko">언어</span>
+              <span data-lang="en">Languages</span>
+              <span data-lang="mn">Хэл</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">2<span>×</span></div>
+            <div class="stat-label">
+              <span data-lang="ko">전공</span>
+              <span data-lang="en">Majors</span>
+              <span data-lang="mn">Мэргэжил</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">
+              <span data-lang="ko">배움</span>
+              <span data-lang="en">Learning</span>
+              <span data-lang="mn">Мэдлэг</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-skills">
+          <span class="skill-chip">Python</span>
+          <span class="skill-chip">JavaScript</span>
+          <span class="skill-chip">React</span>
+          <span class="skill-chip">Data Structures</span>
+          <span class="skill-chip">Business Strategy</span>
+          <span class="skill-chip">Marketing</span>
+          <span class="skill-chip">UX/UI</span>
+          <span class="skill-chip">Technical Writing</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categories">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">
+          <span data-lang="ko">카테고리</span>
+          <span data-lang="en">Categories</span>
+          <span data-lang="mn">Ангилал</span>
+        </p>
+        <h2 class="section-title">
+          <span data-lang="ko">지식의<br><em>영역들</em></span>
+          <span data-lang="en">Domains of<br><em>Knowledge</em></span>
+          <span data-lang="mn">Мэдлэгийн<br><em>чиглэлүүд</em></span>
+        </h2>
+      </div>
+      <a href="#" class="view-all">
+        <span data-lang="ko">전체 보기</span>
+        <span data-lang="en">View All</span>
+        <span data-lang="mn">Бүгдийг харах</span>
+      </a>
+    </div>
+
+    <div class="categories-grid reveal">
+      <div class="cat-card">
+        <div class="cat-num">01</div>
+        <span class="cat-icon">✦</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">블로그</span>
+          <span data-lang="en">Blog</span>
+          <span data-lang="mn">Блог</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">생각, 경험, 인사이트를 담은 에세이와 글들. CS와 경영, 일상의 교차점에서 쓴 이야기.</span>
+          <span data-lang="en">Essays and writings of thoughts, experiences, and insights at the intersection of CS,
+            business, and life.</span>
+          <span data-lang="mn">CS, бизнес, амьдралын огтлолцол дахь бодол, туршлага, ойлголтын эссе, нийтлэлүүд.</span>
+        </p>
+        <span class="cat-count">— 12 posts</span>
+      </div>
+      <div class="cat-card">
+        <div class="cat-num">02</div>
+        <span class="cat-icon">◈</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">프로젝트</span>
+          <span data-lang="en">Projects</span>
+          <span data-lang="mn">Төслүүд</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">직접 만들고 도전한 개발 프로젝트들. 코드부터 기획까지 전 과정을 공유합니다.</span>
+          <span data-lang="en">Development projects built and challenged. Sharing the full process from code to
+            planning.</span>
+          <span data-lang="mn">Хийж туршсан хөгжүүлэлтийн төслүүд. Кодоос эхлэн төлөвлөлт хүртэл бүх үйл явцыг
+            хуваалцдаг.</span>
+        </p>
+        <span class="cat-count">— 8 projects</span>
+      </div>
+      <div class="cat-card">
+        <div class="cat-num">03</div>
+        <span class="cat-icon">◎</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">강의 노트</span>
+          <span data-lang="en">Lecture Notes</span>
+          <span data-lang="mn">Лекцийн тэмдэглэл</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">수업에서 배운 것들을 정리한 노트. 알고리즘, 자료구조, 경영학 개념까지.</span>
+          <span data-lang="en">Organized notes from classes — algorithms, data structures, business concepts and
+            more.</span>
+          <span data-lang="mn">Хичээлийн тэмдэглэлүүд — алгоритм, өгөгдлийн бүтэц, бизнесийн ойлголтууд.</span>
+        </p>
+        <span class="cat-count">— 24 notes</span>
+      </div>
+      <div class="cat-card">
+        <div class="cat-num">04</div>
+        <span class="cat-icon">◆</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">뉴스 큐레이션</span>
+          <span data-lang="en">News Curation</span>
+          <span data-lang="mn">Мэдээ</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">테크와 비즈니스 세계의 중요한 뉴스를 선별하고 제 관점으로 해석합니다.</span>
+          <span data-lang="en">Selecting and interpreting important news from the tech and business world with my
+            perspective.</span>
+          <span data-lang="mn">Технологи, бизнесийн дэлхийн чухал мэдээг сонгон миний үзэл бодлоор тайлбарладаг.</span>
+        </p>
+        <span class="cat-count">— 18 articles</span>
+      </div>
+      <div class="cat-card">
+        <div class="cat-num">05</div>
+        <span class="cat-icon">⬡</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">지식 공유</span>
+          <span data-lang="en">Knowledge Share</span>
+          <span data-lang="mn">Мэдлэг хуваалцах</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">책 리뷰, 튜토리얼, 학습 가이드. 알게 된 것을 더 많은 사람과 나눕니다.</span>
+          <span data-lang="en">Book reviews, tutorials, learning guides — sharing knowledge with more people.</span>
+          <span data-lang="mn">Номын шүүмж, зааварчилгаа, сурах гарын авлага — мэдлэгийг илүү олон хүнтэй
+            хуваалцдаг.</span>
+        </p>
+        <span class="cat-count">— 6 guides</span>
+      </div>
+      <div class="cat-card">
+        <div class="cat-num">06</div>
+        <span class="cat-icon">✧</span>
+        <h3 class="cat-title">
+          <span data-lang="ko">유학 생활</span>
+          <span data-lang="en">Student Life</span>
+          <span data-lang="mn">Оюутны амьдрал</span>
+        </h3>
+        <p class="cat-desc">
+          <span data-lang="ko">한국에서의 유학 경험, 문화 적응, 그리고 성장 이야기를 솔직하게 씁니다.</span>
+          <span data-lang="en">Honest writing about studying abroad in Korea — cultural adaptation and growth
+            stories.</span>
+          <span data-lang="mn">Солонгост суралцсан туршлага, соёлд дасан зохицох, өсөлтийн үнэнч түүхүүд.</span>
+        </p>
+        <span class="cat-count">— 9 stories</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED POSTS -->
+  <section id="posts">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">
+          <span data-lang="ko">최신 글</span>
+          <span data-lang="en">Latest Posts</span>
+          <span data-lang="mn">Сүүлийн нийтлэлүүд</span>
+        </p>
+        <h2 class="section-title">
+          <span data-lang="ko">이번 주<br><em>읽을 거리</em></span>
+          <span data-lang="en">This week's<br><em>reads</em></span>
+          <span data-lang="mn">Энэ долоо хоногийн<br><em>уншлага</em></span>
+        </h2>
+      </div>
+      <a href="#" class="view-all">
+        <span data-lang="ko">모든 글 보기</span>
+        <span data-lang="en">All Posts</span>
+        <span data-lang="mn">Бүх нийтлэл</span>
+      </a>
+    </div>
+
+    <div class="posts-layout reveal">
+      <!-- Featured -->
+      <div class="post-card featured">
+        <div>
+          <span class="post-cat-tag">
+            <span data-lang="ko">강의 노트</span>
+            <span data-lang="en">Lecture Notes</span>
+            <span data-lang="mn">Лекц</span>
+          </span>
+          <h3 class="post-title">
+            <span data-lang="ko">알고리즘이 세상을 어떻게 바꾸는가 — Big-O부터 현실 적용까지</span>
+            <span data-lang="en">How Algorithms Change the World — From Big-O to Real Applications</span>
+            <span data-lang="mn">Алгоритм дэлхийг хэрхэн өөрчлөх вэ — Big-O-оос бодит хэрэглээ хүртэл</span>
+          </h3>
+          <p class="post-excerpt">
+            <span data-lang="ko">수업에서 배운 복잡도 분석이 단순한 시험 문제가 아니라는 걸 깨달았다. 넷플릭스 추천 알고리즘, 구글 검색, 소셜미디어 피드 — 모두 우리가 배운 개념들
+              위에 서 있다. 이번 글에서는 CS 강의에서 배운 알고리즘 개념들을 현실 세계와 연결해 정리했다.</span>
+            <span data-lang="en">I realized that complexity analysis I learned in class isn't just for exams. Netflix
+              recommendations, Google search, social media feeds — all built on concepts we study. This post connects CS
+              algorithm concepts to the real world.</span>
+            <span data-lang="mn">Хичээлдээ сурсан нарийн төвөгтэй байдлын шинжилгээ нь зөвхөн шалгалтын асуулт биш
+              гэдгийг ойлгосон. Netflix-ийн санал болгох систем, Google хайлт, сошиал медиа — бүгд бидний судлах
+              ойлголтуудан дээр суурилдаг.</span>
+          </p>
+        </div>
+        <div class="post-meta">
+          <span>2024.12.18 &nbsp;·&nbsp; 8 min read</span>
+          <div class="post-arrow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side cards -->
+      <div class="post-card">
+        <div>
+          <span class="post-cat-tag">
+            <span data-lang="ko">뉴스</span>
+            <span data-lang="en">News</span>
+            <span data-lang="mn">Мэдээ</span>
+          </span>
+          <h3 class="post-title">
+            <span data-lang="ko">AI 거버넌스, 2025년 기업이 알아야 할 것</span>
+            <span data-lang="en">AI Governance: What Businesses Must Know in 2025</span>
+            <span data-lang="mn">AI засаглал: 2025 онд бизнест мэдэх ёстой зүйл</span>
+          </h3>
+        </div>
+        <div class="post-meta">
+          <span>2024.12.15</span>
+          <div class="post-arrow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-card">
+        <div>
+          <span class="post-cat-tag">
+            <span data-lang="ko">유학 생활</span>
+            <span data-lang="en">Student Life</span>
+            <span data-lang="mn">Оюутан</span>
+          </span>
+          <h3 class="post-title">
+            <span data-lang="ko">이중 전공, 두 개의 사고방식을 갖는다는 것</span>
+            <span data-lang="en">Double Major: Having Two Ways of Thinking</span>
+            <span data-lang="mn">Давхар мэргэжил: хоёр төрлийн сэтгэлгээтэй байх нь</span>
+          </h3>
+        </div>
+        <div class="post-meta">
+          <span>2024.12.10</span>
+          <div class="post-arrow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">
+          <span data-lang="ko">프로젝트</span>
+          <span data-lang="en">Projects</span>
+          <span data-lang="mn">Төслүүд</span>
+        </p>
+        <h2 class="section-title">
+          <span data-lang="ko">직접<br><em>만든 것들</em></span>
+          <span data-lang="en">Things<br><em>I've built</em></span>
+          <span data-lang="mn">Миний<br><em>бүтээлүүд</em></span>
+        </h2>
+      </div>
+      <a href="#" class="view-all">
+        <span data-lang="ko">GitHub 보기</span>
+        <span data-lang="en">View GitHub</span>
+        <span data-lang="mn">GitHub харах</span>
+      </a>
+    </div>
+
+    <div class="projects-list reveal">
+      <div class="project-row">
+        <span class="project-num">01</span>
+        <div class="project-info">
+          <h3 class="project-name">LENLAB Website</h3>
+          <div class="project-tags-row">
+            <span class="project-tag">HTML / CSS / JS</span>
+            <span class="project-tag">· Design</span>
+            <span class="project-tag">· Multilingual</span>
+          </div>
+        </div>
+        <span class="project-year">2024</span>
+        <div class="project-link-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </div>
+      </div>
+      <div class="project-row">
+        <span class="project-num">02</span>
+        <div class="project-info">
+          <h3 class="project-name">
+            <span data-lang="ko">알고리즘 시각화 도구</span>
+            <span data-lang="en">Algorithm Visualizer</span>
+            <span data-lang="mn">Алгоритм дүрслэгч</span>
+          </h3>
+          <div class="project-tags-row">
+            <span class="project-tag">Python</span>
+            <span class="project-tag">· React</span>
+            <span class="project-tag">· CS</span>
+          </div>
+        </div>
+        <span class="project-year">2024</span>
+        <div class="project-link-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </div>
+      </div>
+      <div class="project-row">
+        <span class="project-num">03</span>
+        <div class="project-info">
+          <h3 class="project-name">
+            <span data-lang="ko">비즈니스 케이스 분석 블로그</span>
+            <span data-lang="en">Business Case Analysis Blog</span>
+            <span data-lang="mn">Бизнесийн кейс шинжилгээний блог</span>
+          </h3>
+          <div class="project-tags-row">
+            <span class="project-tag">Research</span>
+            <span class="project-tag">· Writing</span>
+            <span class="project-tag">· Business</span>
+          </div>
+        </div>
+        <span class="project-year">2024</span>
+        <div class="project-link-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </div>
+      </div>
+      <div class="project-row">
+        <span class="project-num">04</span>
+        <div class="project-info">
+          <h3 class="project-name">
+            <span data-lang="ko">3개국어 지식 뉴스레터</span>
+            <span data-lang="en">Trilingual Knowledge Newsletter</span>
+            <span data-lang="mn">Гурван хэлтэй мэдлэгийн мэдээлэл</span>
+          </h3>
+          <div class="project-tags-row">
+            <span class="project-tag">KO / EN / MN</span>
+            <span class="project-tag">· Content</span>
+            <span class="project-tag">· Curation</span>
+          </div>
+        </div>
+        <span class="project-year">2025</span>
+        <div class="project-link-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISION -->
+  <section id="vision">
+    <div class="section-header reveal">
+      <div>
+        <p class="section-label">
+          <span data-lang="ko">미래 비전</span>
+          <span data-lang="en">Future Vision</span>
+          <span data-lang="mn">Ирээдүйн алсын хараа</span>
+        </p>
+        <h2 class="section-title">
+          <span data-lang="ko">다음 챕터,<br><em>온라인 플랫폼</em></span>
+          <span data-lang="en">Next chapter,<br><em>online platform</em></span>
+          <span data-lang="mn">Дараагийн бүлэг,<br><em>онлайн платформ</em></span>
+        </h2>
+      </div>
+    </div>
+
+    <div class="vision-grid reveal">
+      <div class="vision-card">
+        <div class="vision-phase">Phase 01 — Now</div>
+        <h3 class="vision-title">
+          <span data-lang="ko">개인 지식<br><em>브랜드</em></span>
+          <span data-lang="en">Personal<br><em>Knowledge Brand</em></span>
+          <span data-lang="mn">Хувийн мэдлэгийн<br><em>бренд</em></span>
+        </h3>
+        <p class="vision-desc">
+          <span data-lang="ko">블로그, 노트, 프로젝트를 통해 꾸준히 콘텐츠를 만들고 3개 언어 독자들과 소통합니다. LENLAB의 정체성과 신뢰를 쌓아가는 단계입니다.</span>
+          <span data-lang="en">Consistently creating content through blogs, notes, and projects, connecting with readers
+            in 3 languages. Building LENLAB's identity and trust.</span>
+          <span data-lang="mn">Блог, тэмдэглэл, төслөөр дамжуулан тогтвортой контент бүтээж, 3 хэлний уншигчидтай
+            харилцдаг.</span>
+        </p>
+        <div class="vision-tag">CURRENT</div>
+      </div>
+      <div class="vision-card">
+        <div class="vision-phase">Phase 02 — Near Future</div>
+        <h3 class="vision-title">
+          <span data-lang="ko">커뮤니티<br><em>& 뉴스레터</em></span>
+          <span data-lang="en">Community<br><em>& Newsletter</em></span>
+          <span data-lang="mn">Хамт олон<br><em>& мэдээлэл</em></span>
+        </h3>
+        <p class="vision-desc">
+          <span data-lang="ko">정기 뉴스레터 발행, 독자 커뮤니티 형성. 비슷한 관심사를 가진 사람들이 모이는 공간을 만듭니다.</span>
+          <span data-lang="en">Regular newsletter publication, forming a reader community. Creating a space for people
+            with similar interests.</span>
+          <span data-lang="mn">Тогтмол мэдээллийн товхимол гаргах, уншигчийн хамт олон бүрдүүлэх. Нэгэн сонирхолтой
+            хүмүүс цуглардаг орон зай.</span>
+        </p>
+        <div class="vision-tag">COMING</div>
+      </div>
+      <div class="vision-card">
+        <div class="vision-phase">Phase 03 — Mid Future</div>
+        <h3 class="vision-title">
+          <span data-lang="ko">온라인 강의<br><em>플랫폼</em></span>
+          <span data-lang="en">Online Learning<br><em>Platform</em></span>
+          <span data-lang="mn">Онлайн сургалтын<br><em>платформ</em></span>
+        </h3>
+        <p class="vision-desc">
+          <span data-lang="ko">CS와 비즈니스를 3개 언어로 가르치는 온라인 강의 플랫폼. 특히 몽골 학생들이 양질의 교육에 접근할 수 있도록.</span>
+          <span data-lang="en">An online course platform teaching CS and Business in 3 languages — especially helping
+            Mongolian students access quality education.</span>
+          <span data-lang="mn">CS болон бизнесийг 3 хэлээр заадаг онлайн сургалтын платформ — ялангуяа Монгол оюутнуудад
+            чанартай боловсролд хүрэх боломж олгох.</span>
+        </p>
+        <div class="vision-tag">VISION</div>
+      </div>
+      <div class="vision-card">
+        <div class="vision-phase">Phase 04 — Long Term</div>
+        <h3 class="vision-title">
+          <span data-lang="ko">글로벌 지식<br><em>네트워크</em></span>
+          <span data-lang="en">Global Knowledge<br><em>Network</em></span>
+          <span data-lang="mn">Дэлхийн мэдлэгийн<br><em>сүлжээ</em></span>
+        </h3>
+        <p class="vision-desc">
+          <span data-lang="ko">아시아와 세계를 연결하는 다언어 지식 플랫폼. 누구나, 어디서나, 어떤 언어로든 배울 수 있는 세상을 만듭니다.</span>
+          <span data-lang="en">A multilingual knowledge platform connecting Asia and the world. Building a world where
+            anyone, anywhere, can learn in any language.</span>
+          <span data-lang="mn">Азийг дэлхийтэй холбосон олон хэлний мэдлэгийн платформ. Хэн ч, хаана ч, ямар ч хэлээр
+            сурах боломжтой дэлхий.</span>
+        </p>
+        <div class="vision-tag">DREAM</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section id="newsletter">
+    <p class="newsletter-label">
+      <span data-lang="ko">뉴스레터 구독</span>
+      <span data-lang="en">Newsletter</span>
+      <span data-lang="mn">Мэдээлэл захиалах</span>
+    </p>
+    <h2 class="newsletter-title reveal">
+      <span data-lang="ko">지식을<br><em>받아보세요</em></span>
+      <span data-lang="en">Get<br><em>knowledge</em></span>
+      <span data-lang="mn">Мэдлэг<br><em>авах</em></span>
+    </h2>
+    <p class="newsletter-sub reveal">
+      <span data-lang="ko">매주 블로그, 뉴스, 강의 노트를 이메일로. 한국어 · 영어 · 몽골어 선택 가능.</span>
+      <span data-lang="en">Weekly blogs, news, and lecture notes via email. Available in Korean, English &
+        Mongolian.</span>
+      <span data-lang="mn">Долоо хоног бүр блог, мэдээ, лекцийн тэмдэглэл. Солонгос, Англи, Монгол хэлний
+        сонголт.</span>
+    </p>
+    <div class="newsletter-form reveal">
+      <input type="email" class="newsletter-input" placeholder="your@email.com" />
+      <button class="newsletter-btn">
+        <span data-lang="ko">구독</span>
+        <span data-lang="en">Subscribe</span>
+        <span data-lang="mn">Захиалах</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">LEN<span class="footer-logo-dot">·</span>LAB</div>
+        <p class="footer-tagline">
+          <span data-lang="ko">지식을 나누고,<br>세상을 배웁니다.</span>
+          <span data-lang="en">Sharing knowledge,<br>learning the world.</span>
+          <span data-lang="mn">Мэдлэг хуваалцаж,<br>дэлхийг судалдаг.</span>
         </p>
       </div>
-    </section>
-
-    <section class="section" id="contact">
-      <div class="container">
-        <h3 class="section-title">Contact</h3>
-        <p class="center-text">
-          GitHub: <a href="https://github.com/Khuslen09" target="_blank">Khuslen09</a>
+      <div>
+        <p class="footer-col-title">
+          <span data-lang="ko">콘텐츠</span>
+          <span data-lang="en">Content</span>
+          <span data-lang="mn">Агуулга</span>
         </p>
+        <ul class="footer-links">
+          <li><a href="#posts">
+              <span data-lang="ko">블로그</span>
+              <span data-lang="en">Blog</span>
+              <span data-lang="mn">Блог</span>
+            </a></li>
+          <li><a href="#categories">
+              <span data-lang="ko">강의 노트</span>
+              <span data-lang="en">Lecture Notes</span>
+              <span data-lang="mn">Лекцийн тэмдэглэл</span>
+            </a></li>
+          <li><a href="#categories">
+              <span data-lang="ko">뉴스 큐레이션</span>
+              <span data-lang="en">News Curation</span>
+              <span data-lang="mn">Мэдээ</span>
+            </a></li>
+          <li><a href="#projects">
+              <span data-lang="ko">프로젝트</span>
+              <span data-lang="en">Projects</span>
+              <span data-lang="mn">Төслүүд</span>
+            </a></li>
+        </ul>
       </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <p>© 2026 Cloud Utilization Blog. All rights reserved.</p>
+      <div>
+        <p class="footer-col-title">
+          <span data-lang="ko">정보</span>
+          <span data-lang="en">Info</span>
+          <span data-lang="mn">Мэдээлэл</span>
+        </p>
+        <ul class="footer-links">
+          <li><a href="#about">
+              <span data-lang="ko">소개</span>
+              <span data-lang="en">About</span>
+              <span data-lang="mn">Тухай</span>
+            </a></li>
+          <li><a href="#vision">
+              <span data-lang="ko">비전</span>
+              <span data-lang="en">Vision</span>
+              <span data-lang="mn">Алсын хараа</span>
+            </a></li>
+          <li><a href="#newsletter">
+              <span data-lang="ko">뉴스레터</span>
+              <span data-lang="en">Newsletter</span>
+              <span data-lang="mn">Мэдээлэл захиалах</span>
+            </a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Connect</p>
+        <ul class="footer-links">
+          <li><a href="https://github.com/Khuslen09" target="_blank">GitHub</a></li>
+          <li><a href="#" target="_blank">LinkedIn</a></li>
+          <li><a href="#" target="_blank">Instagram</a></li>
+          <li><a href="mailto:hello@lenlab.me">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 LENLAB — Khuslen. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="https://github.com/Khuslen09" target="_blank">GH</a>
+        <a href="#">IG</a>
+        <a href="#">LI</a>
+      </div>
     </div>
   </footer>
+
+  <script>
+    // ===== CURSOR =====
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX; mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+    });
+
+    function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      ring.style.left = ringX + 'px';
+      ring.style.top = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // ===== NAV SCROLL =====
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ===== LANGUAGE SWITCHER =====
+    let currentLang = 'ko';
+
+    function setLang(lang) {
+      currentLang = lang;
+      // Toggle [data-lang] blocks
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        el.style.display = el.dataset.lang === lang ? 'block' : 'none';
+      });
+      // Toggle .inline-lang spans
+      document.querySelectorAll('.inline-lang').forEach(el => {
+        el.style.display = el.classList.contains(lang) ? 'inline' : 'none';
+      });
+      // Update buttons
+      ['ko', 'en', 'mn'].forEach(l => {
+        document.getElementById('btn-' + l).classList.toggle('active', l === lang);
+      });
+      // Update html lang
+      document.documentElement.lang = lang;
+    }
+
+    // Init
+    setLang('ko');
+
+    // ===== SCROLL REVEAL =====
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // ===== NEWSLETTER =====
+    document.querySelector('.newsletter-btn').addEventListener('click', () => {
+      const input = document.querySelector('.newsletter-input');
+      if (input.value && input.value.includes('@')) {
+        const msgs = { ko: '구독해 주셔서 감사합니다!', en: 'Thank you for subscribing!', mn: 'Бүртгүүлсэнд баярлалаа!' };
+        input.value = msgs[currentLang];
+        input.style.color = 'var(--red)';
+      }
+    });
+  </script>
 </body>
+
 </html>
