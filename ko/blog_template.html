@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>[블로그 제목] — LENLAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+ 
+    /* THEME TOKENS — same as index.html */
+    :root {
+      --bg:        #0a0a0a;
+      --bg-alt:    #141414;
+      --bg-card:   #181818;
+      --text:      #f0ede8;
+      --text-dim:  #aaaaaa;
+      --text-muted:#666666;
+      --text-faint:#333333;
+      --border:    rgba(255,255,255,0.07);
+      --border-md: rgba(255,255,255,0.11);
+      --red:       #c8001a;
+      --red-dim:   #8b0012;
+      --red-bg:    rgba(200,0,26,0.07);
+      --accent:    #185FA5;
+      --accent-bg: #0e2d4a;
+      --accent-light: rgba(24,95,165,0.15);
+      --green-bg:  #0d2b10;
+      --green:     #4caf50;
+      --purple-bg: #1e1030;
+      --purple:    #9c88d4;
+      --orange-bg: #2a1800;
+      --orange:    #e08c3a;
+ 
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono:  'DM Mono', 'Courier New', monospace;
+      --font-sans:  'Noto Sans KR', sans-serif;
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  14px;
+    }
+ 
+    html.light {
+      --bg:        #f7f5f0;
+      --bg-alt:    #edeae3;
+      --bg-card:   #ffffff;
+      --text:      #111111;
+      --text-dim:  #444444;
+      --text-muted:#777777;
+      --text-faint:#bbbbbb;
+      --border:    rgba(0,0,0,0.08);
+      --border-md: rgba(0,0,0,0.12);
+      --red-bg:    rgba(200,0,26,0.05);
+      --accent:    #185FA5;
+      --accent-bg: #e6f1fb;
+      --accent-light: rgba(24,95,165,0.1);
+      --green-bg:  #eaf3de;
+      --green:     #3b6d11;
+      --purple-bg: #eeedfe;
+      --purple:    #534ab7;
+      --orange-bg: #faeeda;
+      --orange:    #854f0b;
+    }
+ 
+    /* RESET */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.75;
+      transition: background 0.35s, color 0.35s;
+      cursor: none;
+    }
+ 
+    /* CURSOR */
+    .cursor {
+      position: fixed; width: 7px; height: 7px;
+      background: var(--red); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .2s, height .2s;
+    }
+    .cursor-ring {
+      position: fixed; width: 32px; height: 32px;
+      border: 1px solid rgba(200,0,26,.4); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+    }
+    body:has(a:hover) .cursor { width: 10px; height: 10px; background: var(--text); }
+    body:has(a:hover) .cursor-ring { border-color: var(--text); width: 44px; height: 44px; }
+ 
+    /* STICKY NAV */
+    .site-nav {
+      position: sticky; top: 0; z-index: 400;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      transition: background .35s, border-color .35s;
+    }
+ 
+    .nav-left { display: flex; align-items: center; gap: 28px; }
+ 
+    .brand {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      letter-spacing: .18em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 7px;
+      font-weight: 400;
+    }
+    .brand-dot {
+      width: 6px; height: 6px;
+      background: var(--red); border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.4; transform:scale(.65); }
+    }
+ 
+    .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: .12em;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color .25s; }
+    .breadcrumb a:hover { color: var(--red); }
+    .breadcrumb-sep { color: var(--text-faint); }
+    .breadcrumb-current { color: var(--text-dim); }
+ 
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+ 
+    .nav-lang {
+      display: flex; gap: 10px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+    }
+    .nav-lang button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-family: inherit; font-size: inherit;
+      letter-spacing: inherit; padding: 2px 0;
+      transition: color .25s;
+    }
+    .nav-lang button.active, .nav-lang button:hover { color: var(--red); }
+ 
+    /* Theme toggle */
+    .theme-wrap {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .theme-btn {
+      width: 38px; height: 20px;
+      background: var(--text-faint); border: none; border-radius: 10px;
+      cursor: pointer; position: relative; transition: background .3s;
+    }
+    .theme-btn::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--bg);
+      transition: transform .3s, background .3s;
+    }
+    html.light .theme-btn { background: var(--red); }
+    html.light .theme-btn::after { transform: translateX(18px); }
+ 
+    /* LAYOUT */
+    .page-wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 56px 48px 120px;
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 72px;
+      align-items: start;
+    }
+ 
+    /* ARTICLE HEADER */
+    .article-header { margin-bottom: 48px; }
+ 
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 99px;
+      border: 1px solid var(--border-md);
+      color: var(--text-muted);
+      background: transparent;
+      transition: border-color .25s, color .25s;
+    }
+    .tag:hover { border-color: var(--red); color: var(--red); cursor: default; }
+    .tag.accent {
+      background: var(--accent-bg); color: var(--accent);
+      border-color: transparent;
+    }
+    .tag.red {
+      background: var(--red-bg); color: var(--red);
+      border-color: rgba(200,0,26,.2);
+    }
+ 
+    .article-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -.01em;
+    }
+    .article-title em { font-style: italic; color: var(--text-dim); }
+    .article-title .hl { color: var(--red); }
+ 
+    .article-sub {
+      font-size: 16px; font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 660px;
+      margin-bottom: 28px;
+    }
+ 
+    .meta-row {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .meta-sep { color: var(--text-faint); }
+    .meta-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--red-bg);
+      border: 1px solid rgba(200,0,26,.15);
+      color: var(--red);
+      padding: 2px 10px; border-radius: 99px;
+      font-size: 10px;
+    }
+    .meta-badge::before {
+      content: ''; width: 5px; height: 5px;
+      background: var(--red); border-radius: 50%;
+    }
+ 
+    /*  TOC BOX */
+    .toc-box {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+    .toc-box-title {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 14px;
+    }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .toc-list li {
+      display: flex; align-items: baseline; gap: 10px;
+      font-size: 13px; color: var(--text-dim);
+      padding: 5px 8px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background .2s, color .2s;
+      text-decoration: none;
+    }
+    .toc-list a {
+      display: flex; align-items: baseline; gap: 10px;
+      color: var(--text-dim); text-decoration: none;
+      font-size: 13px; width: 100%;
+      padding: 5px 8px; border-radius: var(--radius-sm);
+      transition: background .2s, color .2s;
+    }
+    .toc-list a:hover { background: var(--bg-card); color: var(--red); }
+    .toc-num {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--text-faint); min-width: 22px;
+    }
+ 
+    /* ARTICLE CONTENT */
+ 
+    /* Section anchor spacing */
+    .sec { scroll-margin-top: 80px; margin-bottom: 64px; }
+ 
+    .sec-label {
+      font-family: var(--font-mono);
+      font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sec-label::before {
+      content: ''; display: block;
+      width: 20px; height: 1px; background: var(--red);
+    }
+ 
+    .sec-head {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 300; line-height: 1.2;
+      color: var(--text); margin-bottom: 20px;
+    }
+    .sec-head em { font-style: italic; color: var(--text-dim); }
+ 
+    .prose {
+      font-size: 15px; color: var(--text-dim);
+      line-height: 1.85; font-weight: 300;
+      margin-bottom: 16px;
+    }
+    .prose strong { font-weight: 500; color: var(--text); }
+    .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    .prose code {
+      font-family: var(--font-mono); font-size: 13px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      padding: 1px 6px; border-radius: 4px; color: var(--text);
+    }
+ 
+    .divider {
+      border: none; border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+ 
+    /* Callout */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 14px 20px;
+      font-size: 14px; line-height: 1.7;
+      margin: 24px 0;
+    }
+    html:not(.light) .callout { color: #8abde8; }
+ 
+    .callout.red {
+      border-color: var(--red);
+      background: var(--red-bg);
+      color: var(--red);
+    }
+    html:not(.light) .callout.red { color: #e87070; }
+ 
+    .callout.green {
+      border-color: var(--green);
+      background: var(--green-bg);
+      color: var(--green);
+    }
+ 
+    .callout strong { font-weight: 600; }
+ 
+    /* Key point box */
+    .keypoint {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .keypoint-title {
+      font-family: var(--font-mono);
+      font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .keypoint-title::before {
+      content: '✦'; font-size: 8px;
+    }
+    .keypoint-body {
+      font-size: 14px; color: var(--text-dim); line-height: 1.75;
+    }
+    .keypoint-body strong { color: var(--text); font-weight: 500; }
+ 
+    /* Compare grid */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin: 24px 0 32px;
+    }
+    .compare-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+    }
+    .compare-card.type-a { border-top: 2px solid var(--red); }
+    .compare-card.type-b { border-top: 2px solid var(--accent); }
+    .compare-card.type-c { border-top: 2px solid var(--green); }
+ 
+    .compare-head {
+      font-size: 13px; font-weight: 500;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text);
+    }
+    .cdot { width: 8px; height: 8px; border-radius: 50%; }
+    .cdot-red { background: var(--red); }
+    .cdot-blue { background: var(--accent); }
+    .cdot-green { background: var(--green); }
+ 
+    .compare-row {
+      font-size: 13px; color: var(--text-muted);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row .val { color: var(--text); font-weight: 500; font-size: 12px; text-align: right; }
+ 
+    /* Info cards grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px; margin: 24px 0 32px;
+    }
+    .card-grid.col2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid.col4 { grid-template-columns: repeat(4, 1fr); }
+ 
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+    }
+    .info-card-icon {
+      width: 34px; height: 34px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; margin-bottom: 12px;
+      background: var(--bg-alt);
+    }
+    .info-card h3 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .info-card p { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+ 
+    /* Factor list */
+    .factor-list { margin: 16px 0 32px; }
+    .factor-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .factor-item:first-child { padding-top: 0; }
+    .factor-item:last-child { border-bottom: none; }
+    .factor-icon {
+      min-width: 36px; height: 36px; border-radius: var(--radius-md);
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .factor-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .factor-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+ 
+    /* Data table */
+    .data-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13.5px; margin: 20px 0 32px;
+    }
+    .data-table th {
+      text-align: left; font-family: var(--font-mono);
+      font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted); font-weight: 400;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-md);
+    }
+    .data-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim); vertical-align: top;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg-alt); }
+    .td-strong { font-weight: 500; color: var(--text); }
+ 
+    /* Inline badge */
+    .badge {
+      display: inline-block; font-family: var(--font-mono);
+      font-size: 10px; padding: 2px 10px; border-radius: 99px; font-weight: 500;
+    }
+    .badge-blue   { background: var(--accent-bg); color: var(--accent); }
+    .badge-green  { background: var(--green-bg);  color: var(--green);  }
+    .badge-purple { background: var(--purple-bg); color: var(--purple); }
+    .badge-orange { background: var(--orange-bg); color: var(--orange); }
+    .badge-red    { background: var(--red-bg);    color: var(--red);    }
+ 
+    /* Code block */
+    .code-block {
+      background: var(--bg-alt);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .code-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .code-block-dots { display: flex; gap: 6px; }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .code-dot:nth-child(1) { background: #ff5f57; }
+    .code-dot:nth-child(2) { background: #febc2e; }
+    .code-dot:nth-child(3) { background: #28c840; }
+    .code-block pre {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--text-dim); line-height: 1.7;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .code-block .kw  { color: #c792ea; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .cmt { color: var(--text-muted); font-style: italic; }
+    .code-block .fn  { color: #82aaff; }
+    .code-block .num { color: #f78c6c; }
+ 
+    /* CLOSING BOX */
+    .closing-box {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      margin-top: 48px;
+    }
+    .closing-box-label {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 14px;
+    }
+    .closing-box h3 {
+      font-family: var(--font-serif);
+      font-size: 24px; font-weight: 300;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .closing-box p {
+      font-size: 14px; color: var(--text-muted); line-height: 1.75;
+    }
+    .next-post {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 20px;
+      font-family: var(--font-mono); font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text); text-decoration: none;
+      border-bottom: 1px solid var(--red); padding-bottom: 3px;
+      transition: color .25s;
+    }
+    .next-post:hover { color: var(--red); }
+    .next-post svg { transition: transform .25s; }
+    .next-post:hover svg { transform: translateX(4px); }
+ 
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar { position: sticky; top: 80px; }
+ 
+    .sidebar-toc {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .sidebar-title {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 14px;
+    }
+    .sidebar-toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-toc-list a {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 12.5px; color: var(--text-muted);
+      text-decoration: none; padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      transition: background .2s, color .2s;
+    }
+    .sidebar-toc-list a:hover,
+    .sidebar-toc-list a.active { background: var(--bg-card); color: var(--red); }
+    .sidebar-toc-num {
+      font-family: var(--font-mono); font-size: 9px;
+      color: var(--text-faint); min-width: 18px;
+    }
+ 
+    .sidebar-meta {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .sidebar-meta-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .sidebar-meta-row:last-child { border-bottom: none; }
+    .smr-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+    .smr-val { color: var(--text-dim); font-size: 12px; text-align: right; }
+ 
+    .sidebar-related {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+    }
+    .related-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .related-item:last-child { border-bottom: none; }
+    .related-cat {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--red);
+    }
+    .related-title {
+      font-size: 13px; color: var(--text-dim); line-height: 1.4;
+      transition: color .2s;
+    }
+    .related-item:hover .related-title { color: var(--text); }
+ 
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .08em; color: var(--text-muted);
+      background: var(--bg-alt);
+      transition: background .35s;
+    }
+    .footer-logo-sm {
+      display: flex; align-items: center; gap: 7px;
+      color: var(--text); text-decoration: none;
+      font-size: 12px; letter-spacing: .14em;
+    }
+    .footer-logo-dot { color: var(--red); }
+    .footer-links-sm { display: flex; gap: 20px; }
+    .footer-links-sm a {
+      color: var(--text-muted); text-decoration: none;
+      transition: color .25s;
+    }
+    .footer-links-sm a:hover { color: var(--red); }
+ 
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1000px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 40px; padding: 40px 32px 80px; }
+      .sidebar { position: static; display: none; }
+      .site-nav { padding: 0 24px; }
+    }
+    @media (max-width: 640px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .card-grid.col4 { grid-template-columns: 1fr 1fr; }
+      .article-title { font-size: 28px; }
+      .site-nav { padding: 0 16px; }
+      .page-wrap { padding: 32px 20px 60px; }
+      .breadcrumb { display: none; }
+    }
+  </style>
+</head>
+<body>
+ 
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+ 
+<!-- ══════════════════════════════
+     NAV
+══════════════════════════════ -->
+<nav class="site-nav">
+  <div class="nav-left">
+    <a href="index.html" class="brand">
+      <span class="brand-dot"></span>LENLAB
+    </a>
+    <div class="breadcrumb">
+      <a href="index.html#categories">강의 노트</a>
+      <span class="breadcrumb-sep">/</span>
+      <!-- ✏️ 수업명 수정 -->
+      <span class="breadcrumb-current">Cloud Computing</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-lang">
+      <button onclick="setLang('ko')" class="active" id="btn-ko">KO</button>
+      <button onclick="setLang('en')" id="btn-en">EN</button>
+      <button onclick="setLang('mn')" id="btn-mn">MN</button>
+    </div>
+    <div class="theme-wrap">
+      <span id="themeIcon">☾</span>
+      <button class="theme-btn" id="themeToggle" onclick="toggleTheme()"></button>
+    </div>
+  </div>
+</nav>
+ 
+<!-- ══════════════════════════════
+     PAGE WRAP (Article + Sidebar)
+══════════════════════════════ -->
+<div class="page-wrap">
+ 
+  <!-- ═══════════ ARTICLE ═══════════ -->
+  <article>
+ 
+    <!-- HEADER -->
+    <header class="article-header">
+      <div class="tag-row">
+        <!-- ✏️ 태그 수정 — accent(파랑), red(빨강), 기본(회색) -->
+        <span class="tag accent">AWS</span>
+        <span class="tag">Cloud Computing</span>
+        <span class="tag">Architecture</span>
+        <span class="tag">인프라</span>
+        <!-- 수업명 태그 -->
+        <span class="tag red">1주차</span>
+      </div>
+ 
+      <!-- ✏️ 제목 수정 — em 태그는 이탤릭, .hl은 빨간색 -->
+      <h1 class="article-title">
+        클라우드, 왜 지금<br><em>선택이 아닌</em> <span class="hl">기본값</span>이 됐나
+      </h1>
+ 
+      <!-- ✏️ 부제목 수정 -->
+      <p class="article-sub">
+        온프레미스의 한계에서 AWS 글로벌 인프라까지 — 클라우드 컴퓨팅의 핵심 개념과 실무 판단 기준을 정리했습니다.
+      </p>
+ 
+      <div class="meta-row">
+        <!-- ✏️ 메타 정보 수정 -->
+        <span class="meta-badge">강의 노트</span>
+        <span class="meta-sep">·</span>
+        <span>Cloud Specialist / 1주차 기반</span>
+        <span class="meta-sep">·</span>
+        <span>2024.12.18</span>
+        <span class="meta-sep">·</span>
+        <span>읽는 시간 약 8분</span>
+      </div>
+    </header>
+ 
+    <!-- TOC — 소형 화면용 인라인 TOC -->
+    <div class="toc-box">
+      <p class="toc-box-title">목차</p>
+      <ul class="toc-list">
+        <!-- ✏️ 목차 항목 수정 -->
+        <li><a href="#sec1"><span class="toc-num">01</span> 클라우드 컴퓨팅이란 무엇인가</a></li>
+        <li><a href="#sec2"><span class="toc-num">02</span> 온프레미스 vs 클라우드 — 실질적 차이</a></li>
+        <li><a href="#sec3"><span class="toc-num">03</span> AWS 탄생 배경과 핵심 서비스</a></li>
+        <li><a href="#sec4"><span class="toc-num">04</span> AWS 글로벌 인프라 구조</a></li>
+        <li><a href="#sec5"><span class="toc-num">05</span> 리전 선택 — 기술·법률·비용의 트리플 레이어</a></li>
+      </ul>
+    </div>
+ 
+    <!-- ─── SECTION 1 ─── -->
+    <div class="sec" id="sec1">
+      <p class="sec-label">01 — 개념</p>
+      <h2 class="sec-head">클라우드 컴퓨팅이란 무엇인가</h2>
+ 
+      <p class="prose">
+        NIST(미국 국립표준기술연구소)는 클라우드 컴퓨팅을 <strong>공유 풀에 접근하여 컴퓨팅 자원을 필요할 때 사용하고 반납하는 모델</strong>로 정의합니다. 이 정의에서 핵심은 두 가지입니다. "온디맨드(on-demand)"와 "사용량 기반 과금(pay-as-you-go)".
+      </p>
+      <p class="prose">
+        과거에는 서버를 구매하고, 설치하고, 유지하는 데만 수개월이 소요됐습니다. 클라우드는 이 사이클을 <strong>분(分) 단위로 압축</strong>했습니다. 인프라가 비즈니스 속도에 맞춰 움직이는 시대가 된 것입니다.
+      </p>
+ 
+      <div class="callout">
+        <strong>핵심 전환:</strong> 자본지출(CapEx) → 운영지출(OpEx). 자산을 소유하는 대신 서비스를 구독하는 방식으로 IT 경제학이 바뀌었습니다.
+      </div>
+ 
+      <!-- 카드 예시 (3열) -->
+      <div class="card-grid">
+        <div class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <h3>온디맨드 셀프서비스</h3>
+          <p>사람의 개입 없이 필요할 때 즉시 자원을 프로비저닝</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🌐</div>
+          <h3>광범위한 네트워크 접근</h3>
+          <p>인터넷을 통해 어디서든 접근 가능한 표준 메커니즘</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">📦</div>
+          <h3>리소스 풀링</h3>
+          <p>다중 고객에게 자원을 공유 제공하는 멀티테넌트 모델</p>
+        </div>
+      </div>
+ 
+      <div class="keypoint">
+        <p class="keypoint-title">핵심 포인트</p>
+        <p class="keypoint-body">
+          클라우드의 5대 특성 (NIST): <strong>온디맨드 셀프서비스</strong>, <strong>광범위한 네트워크 접근</strong>, <strong>리소스 풀링</strong>, <strong>신속한 탄력성</strong>, <strong>측정 가능한 서비스</strong>. 이 다섯 가지를 모두 만족해야 클라우드라고 부를 수 있습니다.
+        </p>
+      </div>
+    </div>
+ 
+    <hr class="divider">
+ 
+    <!-- ─── SECTION 2 ─── -->
+    <div class="sec" id="sec2">
+      <p class="sec-label">02 — 비교</p>
+      <h2 class="sec-head">온프레미스 vs 클라우드</h2>
+ 
+      <p class="prose">
+        "무조건 클라우드"라는 주장은 틀렸습니다. 두 환경은 <strong>트레이드오프</strong> 관계이며, 데이터 민감도·초기 투자 여력·내부 인력 수준에 따라 선택이 달라집니다.
+      </p>
+ 
+      <!-- 비교 카드 -->
+      <div class="compare-grid">
+        <div class="compare-card type-a">
+          <div class="compare-head"><div class="cdot cdot-red"></div>온프레미스 (On-Premise)</div>
+          <div class="compare-row"><span>서버 소유</span><span class="val">기업 직접 구축</span></div>
+          <div class="compare-row"><span>초기 비용</span><span class="val">높음 (CapEx)</span></div>
+          <div class="compare-row"><span>유지보수</span><span class="val">내부 IT 인력</span></div>
+          <div class="compare-row"><span>확장성</span><span class="val">하드웨어 증설, 느림</span></div>
+          <div class="compare-row"><span>가용성</span><span class="val">수동 이중화 필요</span></div>
+          <div class="compare-row"><span>보안 정책</span><span class="val">자체 구축 가능</span></div>
+        </div>
+        <div class="compare-card type-b">
+          <div class="compare-head"><div class="cdot cdot-blue"></div>클라우드 (Cloud)</div>
+          <div class="compare-row"><span>서버 소유</span><span class="val">공급자 제공·관리</span></div>
+          <div class="compare-row"><span>초기 비용</span><span class="val">낮음 (OpEx)</span></div>
+          <div class="compare-row"><span>유지보수</span><span class="val">공급자 담당</span></div>
+          <div class="compare-row"><span>확장성</span><span class="val">자동 확장, 빠름</span></div>
+          <div class="compare-row"><span>가용성</span><span class="val">다중 AZ 고가용성</span></div>
+          <div class="compare-row"><span>보안 정책</span><span class="val">책임 공유 모델</span></div>
+        </div>
+      </div>
+ 
+      <div class="callout red">
+        <strong>주의:</strong> 온프레미스가 유리한 상황도 존재합니다. 극도로 민감한 데이터를 다루거나, 초기 투자 여력이 충분하고, 자체 IT 인력을 보유한 경우입니다.
+      </div>
+    </div>
+ 
+    <hr class="divider">
+ 
+    <!-- ─── SECTION 3 ─── -->
+    <div class="sec" id="sec3">
+      <p class="sec-label">03 — AWS</p>
+      <h2 class="sec-head">AWS는 어떻게 탄생했나</h2>
+ 
+      <p class="prose">
+        아마존은 원래 물류 회사입니다. 하지만 내부 IT 인프라가 너무 복잡해지면서 "이걸 표준화하지 않으면 성장 속도가 꺾인다"는 판단을 내립니다. 2002년 제프 베조스가 사내에 보낸 메일이 이 전환점입니다.
+      </p>
+ 
+      <div class="callout">
+        <strong>베조스 메일의 핵심:</strong> 모든 팀은 서비스 인터페이스로만 통신하라. 그리고 그 인터페이스는 처음부터 외부 개발자도 쓸 수 있도록 설계하라. 이 원칙이 AWS의 DNA가 됩니다.
+      </div>
+ 
+      <p class="prose">2006년, 아마존은 EC2와 S3를 시작으로 상업용 퍼블릭 클라우드를 출시합니다.</p>
+ 
+      <!-- 코드 블록 예시 -->
+      <div class="code-block">
+        <div class="code-block-header">
+          <div class="code-block-dots">
+            <div class="code-dot"></div>
+            <div class="code-dot"></div>
+            <div class="code-dot"></div>
+          </div>
+          <span>AWS CLI — EC2 인스턴스 시작</span>
+        </div>
+        <pre><span class="cmt"># EC2 인스턴스 생성 예시</span>
+<span class="fn">aws</span> ec2 run-instances \
+  --image-id <span class="str">ami-0abcdef1234567890</span> \
+  --instance-type <span class="str">t3.micro</span> \
+  --key-name <span class="str">MyKeyPair</span> \
+  --security-group-ids <span class="str">sg-903004f8</span> \
+  --subnet-id <span class="str">subnet-6e7f829e</span></pre>
+      </div>
+ 
+      <!-- 테이블 예시 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>영역</th>
+            <th>대표 서비스</th>
+            <th>분류</th>
+            <th>역할 요약</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-strong">컴퓨팅</td>
+            <td>EC2, Lambda, EKS</td>
+            <td><span class="badge badge-blue">Compute</span></td>
+            <td>가상 서버 또는 서버리스 실행</td>
+          </tr>
+          <tr>
+            <td class="td-strong">스토리지</td>
+            <td>S3, EBS, EFS</td>
+            <td><span class="badge badge-green">Storage</span></td>
+            <td>객체 / 블록 스토리지</td>
+          </tr>
+          <tr>
+            <td class="td-strong">데이터베이스</td>
+            <td>RDS, DynamoDB, Aurora</td>
+            <td><span class="badge badge-purple">Database</span></td>
+            <td>관계형 / NoSQL 관리형 DB</td>
+          </tr>
+          <tr>
+            <td class="td-strong">네트워킹</td>
+            <td>VPC, CloudFront, ELB</td>
+            <td><span class="badge badge-orange">Network</span></td>
+            <td>가상 네트워크, CDN, 로드밸런서</td>
+          </tr>
+          <tr>
+            <td class="td-strong">보안</td>
+            <td>IAM, WAF, GuardDuty</td>
+            <td><span class="badge badge-red">Security</span></td>
+            <td>접근 권한, 위협 탐지, 암호화</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+ 
+    <hr class="divider">
+ 
+    <!-- ─── SECTION 4 ─── -->
+    <div class="sec" id="sec4">
+      <p class="sec-label">04 — 인프라</p>
+      <h2 class="sec-head">AWS 글로벌 인프라 구조</h2>
+ 
+      <p class="prose">
+        AWS의 물리적 인프라는 세 계층으로 구성됩니다. <strong>리전(Region) → 가용 영역(AZ) → 엣지 로케이션(Edge Location)</strong>. 이 구조를 이해하지 않으면 고가용성 설계가 불가능합니다.
+      </p>
+ 
+      <div class="card-grid">
+        <div class="info-card">
+          <div class="info-card-icon">🌍</div>
+          <h3>리전 (Region)</h3>
+          <p>지리적으로 분리된 데이터센터 클러스터. 서울(ap-northeast-2), 버지니아(us-east-1) 등 수십 개 존재.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <h3>가용 영역 (AZ)</h3>
+          <p>리전 내 물리적으로 분리된 데이터센터 그룹. 각 리전은 최소 3개 AZ로 구성됩니다.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🔗</div>
+          <h3>엣지 로케이션</h3>
+          <p>CloudFront CDN 캐싱을 위한 엣지 노드. 사용자와 가장 가까운 지점에서 콘텐츠를 서빙합니다.</p>
+        </div>
+      </div>
+ 
+      <div class="callout green">
+        <strong>실무 포인트:</strong> 고가용성(HA) 아키텍처의 기본은 멀티-AZ 배포입니다. 동일 리전 내 서로 다른 AZ에 애플리케이션을 분산해야 단일 장애 지점(SPOF)을 제거할 수 있습니다.
+      </div>
+    </div>
+ 
+    <hr class="divider">
+ 
+    <!-- ─── SECTION 5 ─── -->
+    <div class="sec" id="sec5">
+      <p class="sec-label">05 — 의사결정</p>
+      <h2 class="sec-head">리전 선택 — <em>기술·법률·비용의 트리플 레이어</em></h2>
+ 
+      <p class="prose">
+        리전 선택은 단순히 "가까운 곳"을 고르는 문제가 아닙니다. 기술(지연), 규제(데이터 주권), 비용(리전별 요금 차이) 세 축을 동시에 고려해야 합니다.
+      </p>
+ 
+      <!-- 팩터 리스트 예시 -->
+      <div class="factor-list">
+        <div class="factor-item">
+          <div class="factor-icon">⏱</div>
+          <div>
+            <div class="factor-title">지연 시간 (Latency)</div>
+            <div class="factor-desc">한국 사용자 대상 서비스라면 서울 리전(ap-northeast-2)이 기본값. 사용자와 서버 간 물리적 거리가 RTT(왕복 지연)에 직접 영향을 미칩니다.</div>
+          </div>
+        </div>
+        <div class="factor-item">
+          <div class="factor-icon">🔧</div>
+          <div>
+            <div class="factor-title">서비스 가용성 (Supported Services)</div>
+            <div class="factor-desc">신규 서비스는 특정 리전에서 먼저 출시됩니다. AI 서비스(Amazon Bedrock 등)는 북미·유럽 리전 중심으로 먼저 제공되는 경우가 많습니다.</div>
+          </div>
+        </div>
+        <div class="factor-item">
+          <div class="factor-icon">💰</div>
+          <div>
+            <div class="factor-title">비용 (Cost)</div>
+            <div class="factor-desc">동일 스펙의 EC2 인스턴스라도 리전별 요금 차이가 존재합니다. 서울 리전은 일반적으로 오하이오보다 약간 높습니다.</div>
+          </div>
+        </div>
+        <div class="factor-item">
+          <div class="factor-icon">⚖️</div>
+          <div>
+            <div class="factor-title">법률 및 데이터 주권 (Compliance)</div>
+            <div class="factor-desc">금융권은 전자금융감독규정에 따라 중요 정보의 국내 저장이 원칙이며, 해외 리전 사용 시 금감원 사전 승인이 필요합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- CLOSING -->
+    <div class="closing-box">
+      <p class="closing-box-label">마무리</p>
+      <h3>클라우드는 철학의 변화입니다</h3>
+      <p>
+        클라우드는 기술 선택지가 아닌 <strong>운영 철학</strong>의 변화입니다. 온프레미스가 "소유"를 전제로 한다면, 클라우드는 "사용"을 전제로 합니다. AWS는 이 철학을 가장 넓은 생태계 위에서 구현한 플랫폼입니다. 다음 포스팅에서는 VPC와 네트워크 보안 그룹 설계를 구체적으로 다뤄보겠습니다.
+      </p>
+      <a href="#" class="next-post">
+        다음 강의 노트 →
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
+      </a>
+    </div>
+ 
+  </article><!-- /article -->
+ 
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sidebar">
+ 
+    <!-- 사이드 TOC -->
+    <div class="sidebar-toc">
+      <p class="sidebar-title">목차</p>
+      <ul class="sidebar-toc-list">
+        <li><a href="#sec1" class="active"><span class="sidebar-toc-num">01</span> 클라우드 개념</a></li>
+        <li><a href="#sec2"><span class="sidebar-toc-num">02</span> 온프레미스 vs 클라우드</a></li>
+        <li><a href="#sec3"><span class="sidebar-toc-num">03</span> AWS 탄생</a></li>
+        <li><a href="#sec4"><span class="sidebar-toc-num">04</span> 글로벌 인프라</a></li>
+        <li><a href="#sec5"><span class="sidebar-toc-num">05</span> 리전 선택</a></li>
+      </ul>
+    </div>
+ 
+    <!-- 메타 정보 -->
+    <div class="sidebar-meta">
+      <p class="sidebar-title">글 정보</p>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">카테고리</span>
+        <span class="smr-val">강의 노트</span>
+      </div>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">수업</span>
+        <span class="smr-val">Cloud Specialist</span>
+      </div>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">주차</span>
+        <span class="smr-val">Week 1</span>
+      </div>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">날짜</span>
+        <span class="smr-val">2024.12.18</span>
+      </div>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">읽기</span>
+        <span class="smr-val">약 8분</span>
+      </div>
+      <div class="sidebar-meta-row">
+        <span class="smr-label">언어</span>
+        <span class="smr-val">KO / EN / MN</span>
+      </div>
+    </div>
+ 
+    <!-- 관련 글 -->
+    <div class="sidebar-related">
+      <p class="sidebar-title">관련 글</p>
+      <a href="#" class="related-item">
+        <span class="related-cat">강의 노트 · Week 2</span>
+        <span class="related-title">VPC와 네트워크 보안 그룹 설계</span>
+      </a>
+      <a href="#" class="related-item">
+        <span class="related-cat">강의 노트 · Week 3</span>
+        <span class="related-title">IAM — 최소 권한 원칙과 역할 설계</span>
+      </a>
+      <a href="#" class="related-item">
+        <span class="related-cat">블로그</span>
+        <span class="related-title">알고리즘이 세상을 어떻게 바꾸는가</span>
+      </a>
+    </div>
+ 
+  </aside>
+ 
+</div><!-- /page-wrap -->
+ 
+<!-- FOOTER -->
+<footer class="site-footer">
+  <a href="index.html" class="footer-logo-sm">
+    LEN<span class="footer-logo-dot">·</span>LAB
+  </a>
+  <span>© 2024 LENLAB — Khuslen. All rights reserved.</span>
+  <div class="footer-links-sm">
+    <a href="index.html">Home</a>
+    <a href="index.html#posts">Blog</a>
+    <a href="https://github.com/Khuslen09" target="_blank">GitHub</a>
+  </div>
+</footer>
+ 
+<script>
+  /* ── CURSOR ── */
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  });
+  (function loop(){
+    rx += (mx-rx)*.12; ry += (my-ry)*.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(loop);
+  })();
+ 
+  /* ── THEME ── */
+  let isLight = localStorage.getItem('lenlab-theme') === 'light';
+  function applyTheme() {
+    document.documentElement.classList.toggle('light', isLight);
+    document.getElementById('themeIcon').textContent = isLight ? '☀︎' : '☾';
+  }
+  function toggleTheme() {
+    isLight = !isLight;
+    localStorage.setItem('lenlab-theme', isLight ? 'light' : 'dark');
+    applyTheme();
+  }
+  applyTheme();
+ 
+  /* ── LANGUAGE ── */
+  let currentLang = localStorage.getItem('lenlab-lang') || 'ko';
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-lang]').forEach(el => {
+      el.style.display = el.dataset.lang === lang ? 'block' : 'none';
+    });
+    document.querySelectorAll('.inline-lang').forEach(el => {
+      el.style.display = el.classList.contains(lang) ? 'inline' : 'none';
+    });
+    ['ko','en','mn'].forEach(l => {
+      const b = document.getElementById('btn-'+l);
+      if(b) b.classList.toggle('active', l===lang);
+    });
+    document.documentElement.lang = lang;
+    localStorage.setItem('lenlab-lang', lang);
+  }
+  setLang(currentLang);
+ 
+  /* ── SIDEBAR ACTIVE TOC ── */
+  const sideLinks = document.querySelectorAll('.sidebar-toc-list a');
+  const sections  = document.querySelectorAll('.sec');
+  const observer  = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        sideLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#'+id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
+ 
+
