@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이미지 생성 AI는 ‘공간’을 이해할까? — LENLAB</title>
+  <meta name="description"
+    content="ICLR 2026 논문 Everything in Its Place를 바탕으로 텍스트-이미지 모델의 공간 지능 문제를 한국어로 정리한 LENLAB 지식+뉴스 글입니다." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    /* THEME TOKENS — same as index.html */
+    :root {
+      --bg: #0a0a0a;
+      --bg-alt: #141414;
+      --bg-card: #181818;
+      --text: #f0ede8;
+      --text-dim: #aaaaaa;
+      --text-muted: #666666;
+      --text-faint: #333333;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-md: rgba(255, 255, 255, 0.11);
+      --red: #c8001a;
+      --red-dim: #8b0012;
+      --red-bg: rgba(200, 0, 26, 0.07);
+      --accent: #185FA5;
+      --accent-bg: #0e2d4a;
+      --accent-light: rgba(24, 95, 165, 0.15);
+      --green-bg: #0d2b10;
+      --green: #4caf50;
+      --purple-bg: #1e1030;
+      --purple: #9c88d4;
+      --orange-bg: #2a1800;
+      --orange: #e08c3a;
+
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-sans: 'Noto Sans KR', sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    html.light {
+      --bg: #f7f5f0;
+      --bg-alt: #edeae3;
+      --bg-card: #ffffff;
+      --text: #111111;
+      --text-dim: #444444;
+      --text-muted: #777777;
+      --text-faint: #bbbbbb;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-md: rgba(0, 0, 0, 0.12);
+      --red-bg: rgba(200, 0, 26, 0.05);
+      --accent: #185FA5;
+      --accent-bg: #e6f1fb;
+      --accent-light: rgba(24, 95, 165, 0.1);
+      --green-bg: #eaf3de;
+      --green: #3b6d11;
+      --purple-bg: #eeedfe;
+      --purple: #534ab7;
+      --orange-bg: #faeeda;
+      --orange: #854f0b;
+    }
+
+    /* RESET */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.75;
+      transition: background 0.35s, color 0.35s;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    .cursor {
+      position: fixed;
+      width: 7px;
+      height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(200, 0, 26, .4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+
+    body:has(a:hover) .cursor {
+      width: 10px;
+      height: 10px;
+      background: var(--text);
+    }
+
+    body:has(a:hover) .cursor-ring {
+      border-color: var(--text);
+      width: 44px;
+      height: 44px;
+    }
+
+    /* STICKY NAV */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 60px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      transition: background .35s, border-color .35s;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .brand {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      letter-spacing: .18em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 400;
+    }
+
+    .brand-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.65);
+      }
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color .25s;
+    }
+
+    .breadcrumb a:hover {
+      color: var(--red);
+    }
+
+    .breadcrumb-sep {
+      color: var(--text-faint);
+    }
+
+    .breadcrumb-current {
+      color: var(--text-dim);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-lang {
+      display: flex;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+    }
+
+    .nav-lang button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: inherit;
+      padding: 2px 0;
+      transition: color .25s;
+    }
+
+    .nav-lang button.active,
+    .nav-lang button:hover {
+      color: var(--red);
+    }
+
+    /* Theme toggle */
+    .theme-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .theme-btn {
+      width: 38px;
+      height: 20px;
+      background: var(--text-faint);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: background .3s;
+    }
+
+    .theme-btn::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg);
+      transition: transform .3s, background .3s;
+    }
+
+    html.light .theme-btn {
+      background: var(--red);
+    }
+
+    html.light .theme-btn::after {
+      transform: translateX(18px);
+    }
+
+    /* LAYOUT */
+    .page-wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 56px 48px 120px;
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 72px;
+      align-items: start;
+    }
+
+    /* ARTICLE HEADER */
+    .article-header {
+      margin-bottom: 48px;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border-md);
+      color: var(--text-muted);
+      background: transparent;
+      transition: border-color .25s, color .25s;
+    }
+
+    .tag:hover {
+      border-color: var(--red);
+      color: var(--red);
+      cursor: default;
+    }
+
+    .tag.accent {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-color: transparent;
+    }
+
+    .tag.red {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: rgba(200, 0, 26, .2);
+    }
+
+    .article-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -.01em;
+    }
+
+    .article-title em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .article-title .hl {
+      color: var(--red);
+    }
+
+    .article-sub {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 660px;
+      margin-bottom: 28px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+
+    .meta-sep {
+      color: var(--text-faint);
+    }
+
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--red-bg);
+      border: 1px solid rgba(200, 0, 26, .15);
+      color: var(--red);
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 10px;
+    }
+
+    .meta-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+
+    /*  TOC BOX */
+    .toc-box {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 48px;
+    }
+
+    .toc-box-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .toc-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      text-decoration: none;
+    }
+
+    .toc-list a {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      width: 100%;
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      transition: background .2s, color .2s;
+    }
+
+    .toc-list a:hover {
+      background: var(--bg-card);
+      color: var(--red);
+    }
+
+    .toc-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-faint);
+      min-width: 22px;
+    }
+
+    /* ARTICLE CONTENT */
+
+    /* Section anchor spacing */
+    .sec {
+      scroll-margin-top: 80px;
+      margin-bottom: 64px;
+    }
+
+    .sec-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sec-label::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--red);
+    }
+
+    .sec-head {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .sec-head em {
+      font-style: italic;
+      color: var(--text-dim);
+    }
+
+    .prose {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.85;
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    .prose strong {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .prose a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .prose code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 14px 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin: 24px 0;
+    }
+
+    html:not(.light) .callout {
+      color: #8abde8;
+    }
+
+    .callout.red {
+      border-color: var(--red);
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    html:not(.light) .callout.red {
+      color: #e87070;
+    }
+
+    .callout.green {
+      border-color: var(--green);
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .callout strong {
+      font-weight: 600;
+    }
+
+    /* Key point box */
+    .keypoint {
+      background: var(--bg-card);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .keypoint-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .keypoint-title::before {
+      content: '✦';
+      font-size: 8px;
+    }
+
+    .keypoint-body {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.75;
+    }
+
+    .keypoint-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Compare grid */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 24px 0 32px;
+    }
+
+    .compare-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+    }
+
+    .compare-card.type-a {
+      border-top: 2px solid var(--red);
+    }
+
+    .compare-card.type-b {
+      border-top: 2px solid var(--accent);
+    }
+
+    .compare-card.type-c {
+      border-top: 2px solid var(--green);
+    }
+
+    .compare-head {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
+    .cdot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .cdot-red {
+      background: var(--red);
+    }
+
+    .cdot-blue {
+      background: var(--accent);
+    }
+
+    .cdot-green {
+      background: var(--green);
+    }
+
+    .compare-row {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .compare-row:last-child {
+      border-bottom: none;
+    }
+
+    .compare-row .val {
+      color: var(--text);
+      font-weight: 500;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    /* Info cards grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 24px 0 32px;
+    }
+
+    .card-grid.col2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .card-grid.col4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+    }
+
+    .info-card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 12px;
+      background: var(--bg-alt);
+    }
+
+    .info-card h3 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .info-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Factor list */
+    .factor-list {
+      margin: 16px 0 32px;
+    }
+
+    .factor-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .factor-item:first-child {
+      padding-top: 0;
+    }
+
+    .factor-item:last-child {
+      border-bottom: none;
+    }
+
+    .factor-icon {
+      min-width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .factor-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .factor-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Data table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 20px 0 32px;
+    }
+
+    .data-table th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      font-weight: 400;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border-md);
+    }
+
+    .data-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: var(--bg-alt);
+    }
+
+    .td-strong {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Inline badge */
+    .badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .badge-purple {
+      background: var(--purple-bg);
+      color: var(--purple);
+    }
+
+    .badge-orange {
+      background: var(--orange-bg);
+      color: var(--orange);
+    }
+
+    .badge-red {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--bg-alt);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .code-block-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .code-dot:nth-child(1) {
+      background: #ff5f57;
+    }
+
+    .code-dot:nth-child(2) {
+      background: #febc2e;
+    }
+
+    .code-dot:nth-child(3) {
+      background: #28c840;
+    }
+
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .code-block .kw {
+      color: #c792ea;
+    }
+
+    .code-block .str {
+      color: #c3e88d;
+    }
+
+    .code-block .cmt {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .code-block .fn {
+      color: #82aaff;
+    }
+
+    .code-block .num {
+      color: #f78c6c;
+    }
+
+    /* CLOSING BOX */
+    .closing-box {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      margin-top: 48px;
+    }
+
+    .closing-box-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 14px;
+    }
+
+    .closing-box h3 {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .closing-box p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+
+    .next-post {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--red);
+      padding-bottom: 3px;
+      transition: color .25s;
+    }
+
+    .next-post:hover {
+      color: var(--red);
+    }
+
+    .next-post svg {
+      transition: transform .25s;
+    }
+
+    .next-post:hover svg {
+      transform: translateX(4px);
+    }
+
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar {
+      position: sticky;
+      top: 80px;
+    }
+
+    .sidebar-toc {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .sidebar-toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-toc-list a {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      transition: background .2s, color .2s;
+    }
+
+    .sidebar-toc-list a:hover,
+    .sidebar-toc-list a.active {
+      background: var(--bg-card);
+      color: var(--red);
+    }
+
+    .sidebar-toc-num {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-faint);
+      min-width: 18px;
+    }
+
+    .sidebar-meta {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .sidebar-meta-row:last-child {
+      border-bottom: none;
+    }
+
+    .smr-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .smr-val {
+      color: var(--text-dim);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .sidebar-related {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+    }
+
+    .related-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+    }
+
+    .related-item:last-child {
+      border-bottom: none;
+    }
+
+    .related-cat {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .related-title {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.4;
+      transition: color .2s;
+    }
+
+    .related-item:hover .related-title {
+      color: var(--text);
+    }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      background: var(--bg-alt);
+      transition: background .35s;
+    }
+
+    .footer-logo-sm {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: .14em;
+    }
+
+    .footer-logo-dot {
+      color: var(--red);
+    }
+
+    .footer-links-sm {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links-sm a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color .25s;
+    }
+
+    .footer-links-sm a:hover {
+      color: var(--red);
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1000px) {
+      .page-wrap {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 40px 32px 80px;
+      }
+
+      .sidebar {
+        position: static;
+        display: none;
+      }
+
+      .site-nav {
+        padding: 0 24px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .card-grid.col4 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .article-title {
+        font-size: 28px;
+      }
+
+      .site-nav {
+        padding: 0 16px;
+      }
+
+      .page-wrap {
+        padding: 32px 20px 60px;
+      }
+
+      .breadcrumb {
+        display: none;
+      }
+    }
+
+
+    /* Korean-only article refinements */
+    .source-list {
+      list-style: none;
+      margin: 18px 0 0;
+    }
+
+    .source-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .source-list li:last-child {
+      border-bottom: none;
+    }
+
+    .source-list a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .metric {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    @media (hover: none) {
+      body {
+        cursor: auto;
+      }
+
+      .cursor,
+      .cursor-ring {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <div class="nav-left">
+      <a href="index.html" class="brand">
+        <span class="brand-dot"></span>LENLAB
+      </a>
+      <div class="breadcrumb">
+        <a href="index.html#categories">지식 공유</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">AI 뉴스 큐레이션</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="theme-wrap">
+        <span id="themeIcon">☾</span>
+        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" aria-label="테마 전환"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE WRAP -->
+  <div class="page-wrap">
+
+    <!-- ARTICLE -->
+    <article>
+
+      <!-- HEADER -->
+      <header class="article-header">
+        <div class="tag-row">
+          <span class="tag accent">AI</span>
+          <span class="tag">이미지 생성</span>
+          <span class="tag">공간 지능</span>
+          <span class="tag">논문 리뷰</span>
+          <span class="tag red">지식 + 뉴스</span>
+        </div>
+
+        <h1 class="article-title">
+          이미지 생성 AI는<br><em>‘공간’</em>을 이해할까?
+        </h1>
+
+        <p class="article-sub">
+          ICLR 2026 논문 <strong>Everything in Its Place</strong>는 텍스트-이미지 모델이 단순히 예쁜 그림을 만드는 것을 넘어,
+          물체의 위치·가림·상호작용·인과관계를 얼마나 이해하는지 평가합니다.
+        </p>
+
+        <div class="meta-row">
+          <span class="meta-badge">AI 뉴스 큐레이션</span>
+          <span class="meta-sep">·</span>
+          <span>논문 기반 지식 공유</span>
+          <span class="meta-sep">·</span>
+          <span>2026.05.04</span>
+          <span class="meta-sep">·</span>
+          <span>읽는 시간 약 7분</span>
+        </div>
+      </header>
+
+      <!-- TOC -->
+      <div class="toc-box">
+        <p class="toc-box-title">목차</p>
+        <ul class="toc-list">
+          <li><a href="#sec1"><span class="toc-num">01</span> 왜 지금 주목할 논문인가</a></li>
+          <li><a href="#sec2"><span class="toc-num">02</span> 예쁜 이미지와 공간 이해의 차이</a></li>
+          <li><a href="#sec3"><span class="toc-num">03</span> SpatialGenEval 벤치마크</a></li>
+          <li><a href="#sec4"><span class="toc-num">04</span> 공간 지능의 세 가지 층위</a></li>
+          <li><a href="#sec5"><span class="toc-num">05</span> LENLAB 관점과 산업적 의미</a></li>
+          <li><a href="#sec6"><span class="toc-num">06</span> 정리와 출처</a></li>
+        </ul>
+      </div>
+
+      <!-- SECTION 1 -->
+      <div class="sec" id="sec1">
+        <p class="sec-label">01 — 뉴스 포인트</p>
+        <h2 class="sec-head">왜 지금 주목할 논문인가</h2>
+
+        <p class="prose">
+          텍스트로 이미지를 만드는 AI는 이제 매우 자연스러운 그림을 만들어냅니다. 하지만
+          <strong>“고양이는 의자 왼쪽에 있고, 컵은 테이블 뒤에 있으며, 빛 때문에 그림자가 오른쪽으로 생긴다”</strong>
+          같은 요청을 정확히 지키는 일은 여전히 어렵습니다.
+        </p>
+
+        <p class="prose">
+          이 논문이 중요한 이유는 이미지 생성 AI를 단순히 <strong>“얼마나 그럴듯하게 그렸는가”</strong>가 아니라
+          <strong>“텍스트 속 공간 관계를 얼마나 정확히 이해했는가”</strong>로 평가하려 한다는 점입니다.
+          앞으로 AI가 광고, 커머스, 교육 콘텐츠, 게임, 디자인 자동화에 쓰이려면 장면 안의 물체 관계를 제대로 이해해야 합니다.
+        </p>
+
+        <div class="callout">
+          <strong>핵심 질문:</strong> 좋은 이미지를 만드는 능력과, 공간 관계를 이해하는 능력은 같은 능력일까요?
+        </div>
+
+        <div class="keypoint">
+          <p class="keypoint-title">한 줄 요약</p>
+          <p class="keypoint-body">
+            <strong>Everything in Its Place</strong>는 텍스트-이미지 모델의 공간 지능을 평가하기 위해
+            <strong>SpatialGenEval</strong>이라는 벤치마크를 제안한 논문입니다.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 2 -->
+      <div class="sec" id="sec2">
+        <p class="sec-label">02 — 문제 정의</p>
+        <h2 class="sec-head">예쁜 이미지와 공간 이해는 다릅니다</h2>
+
+        <p class="prose">
+          기존 이미지 생성 평가는 이미지 품질, 스타일, 프롬프트와의 전체적 유사도에 초점을 두는 경우가 많았습니다.
+          그러나 실제 활용에서는 “대충 맞는 그림”보다 <strong>조건을 정확히 지키는 그림</strong>이 더 중요합니다.
+        </p>
+
+        <div class="compare-grid">
+          <div class="compare-card type-a">
+            <div class="compare-head">
+              <div class="cdot cdot-red"></div>일반 이미지 품질 평가
+            </div>
+            <div class="compare-row"><span>주요 관심</span><span class="val">자연스러움</span></div>
+            <div class="compare-row"><span>평가 기준</span><span class="val">시각적 완성도</span></div>
+            <div class="compare-row"><span>강점</span><span class="val">전체 인상 파악</span></div>
+            <div class="compare-row"><span>한계</span><span class="val">세부 관계 오류를 놓침</span></div>
+          </div>
+
+          <div class="compare-card type-b">
+            <div class="compare-head">
+              <div class="cdot cdot-blue"></div>공간 지능 평가
+            </div>
+            <div class="compare-row"><span>주요 관심</span><span class="val">위치와 관계</span></div>
+            <div class="compare-row"><span>평가 기준</span><span class="val">조건 충실도</span></div>
+            <div class="compare-row"><span>강점</span><span class="val">실무 요구 반영</span></div>
+            <div class="compare-row"><span>한계</span><span class="val">평가 설계가 어려움</span></div>
+          </div>
+        </div>
+
+        <div class="callout red">
+          <strong>주의할 점:</strong> 생성 이미지가 아름답더라도, “왼쪽”, “뒤쪽”, “가려짐”, “원인과 결과”를 틀리면 실제 서비스에서는 실패한 결과가 될 수 있습니다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 3 -->
+      <div class="sec" id="sec3">
+        <p class="sec-label">03 — 벤치마크</p>
+        <h2 class="sec-head">SpatialGenEval은 무엇을 측정하나</h2>
+
+        <p class="prose">
+          연구진은 <strong>SpatialGenEval</strong>이라는 평가 벤치마크를 만들었습니다.
+          짧은 문장 하나로 이미지를 생성하게 하는 대신, 현실 장면처럼 정보가 많은 프롬프트를 사용합니다.
+          그다음 생성된 이미지가 프롬프트 속 공간 조건을 얼마나 잘 만족하는지 질문-답변 방식으로 확인합니다.
+        </p>
+
+        <div class="card-grid">
+          <div class="info-card">
+            <div class="info-card-icon">🧾</div>
+            <h3>정보 밀도 높은 프롬프트</h3>
+            <p><span class="metric">1,230</span>짧은 명령문이 아니라 여러 공간 조건을 포함한 장면 설명</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🏙</div>
+            <h3>현실 세계 장면 유형</h3>
+            <p><span class="metric">25</span>실내, 거리, 작업 공간 등 다양한 실제 장면 범주</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">❓</div>
+            <h3>공간 이해 질문</h3>
+            <p><span class="metric">12,300</span>생성 이미지가 조건을 지켰는지 묻는 객관식 질문</p>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>구성 요소</th>
+              <th>역할</th>
+              <th>평가 의미</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-strong">프롬프트</td>
+              <td>장면 속 물체, 위치, 관계, 상호작용을 설명</td>
+              <td><span class="badge badge-blue">입력 조건</span></td>
+            </tr>
+            <tr>
+              <td class="td-strong">생성 이미지</td>
+              <td>모델이 프롬프트를 바탕으로 만든 결과물</td>
+              <td><span class="badge badge-green">출력 결과</span></td>
+            </tr>
+            <tr>
+              <td class="td-strong">질문-답변 평가</td>
+              <td>이미지가 공간 조건을 실제로 반영했는지 확인</td>
+              <td><span class="badge badge-purple">정량 평가</span></td>
+            </tr>
+            <tr>
+              <td class="td-strong">SpatialT2I</td>
+              <td>모델 개선을 위해 구성한 텍스트-이미지 데이터셋</td>
+              <td><span class="badge badge-orange">학습 데이터</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-block">
+          <div class="code-block-header">
+            <div class="code-block-dots">
+              <div class="code-dot"></div>
+              <div class="code-dot"></div>
+              <div class="code-dot"></div>
+            </div>
+            <span>프롬프트 예시 구조</span>
+          </div>
+          <pre><span class="cmt"># 단순 프롬프트</span>
+강아지와 테이블을 그려줘.
+
+<span class="cmt"># 공간 정보가 많은 프롬프트</span>
+작은 강아지가 나무 테이블 왼쪽 아래에 앉아 있다.
+테이블 위에는 빨간 컵이 있고, 컵 뒤에는 열린 책이 놓여 있다.
+창문에서 들어오는 빛 때문에 컵의 그림자는 오른쪽으로 길게 생긴다.</pre>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 4 -->
+      <div class="sec" id="sec4">
+        <p class="sec-label">04 — 공간 지능</p>
+        <h2 class="sec-head">공간 지능의 세 가지 층위</h2>
+
+        <p class="prose">
+          논문에서 다루는 공간 지능은 단순한 위치 맞히기가 아닙니다.
+          물체가 어디에 있는지, 서로 어떤 관계인지, 장면 안에서 어떤 상호작용이 일어나는지를 함께 봅니다.
+        </p>
+
+        <div class="factor-list">
+          <div class="factor-item">
+            <div class="factor-icon">📍</div>
+            <div>
+              <div class="factor-title">공간 지각</div>
+              <div class="factor-desc">
+                물체의 절대적 위치와 상대적 위치를 반영하는 능력입니다. 예를 들어 “노트북 오른쪽의 커피잔”이 실제로 오른쪽에 있어야 합니다.
+              </div>
+            </div>
+          </div>
+
+          <div class="factor-item">
+            <div class="factor-icon">🧠</div>
+            <div>
+              <div class="factor-title">공간 추론</div>
+              <div class="factor-desc">
+                앞뒤 관계, 가림, 장면 구조처럼 단순 배치보다 더 복잡한 조건을 논리적으로 맞추는 능력입니다.
+              </div>
+            </div>
+          </div>
+
+          <div class="factor-item">
+            <div class="factor-icon">🔁</div>
+            <div>
+              <div class="factor-title">공간 상호작용</div>
+              <div class="factor-desc">
+                사람이 공을 던지거나 물이 컵에서 넘치는 것처럼 물체 간 상호작용과 인과성을 자연스럽게 표현하는 능력입니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout green">
+          <strong>실무 포인트:</strong> 고급 이미지 생성 AI는 “무엇을 그릴지”뿐 아니라 “어디에, 어떤 관계로, 왜 그렇게 보여야 하는지”를 이해해야 합니다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 5 -->
+      <div class="sec" id="sec5">
+        <p class="sec-label">05 — LENLAB 관점</p>
+        <h2 class="sec-head">이 논문이 비즈니스에도 중요한 이유</h2>
+
+        <p class="prose">
+          이 연구는 컴퓨터비전 논문이지만, 비즈니스 관점에서도 의미가 큽니다.
+          생성형 AI가 실제 산업에서 쓰이려면 <strong>그럴듯한 결과</strong>보다 <strong>요구사항을 정확히 지키는 결과</strong>가 중요하기 때문입니다.
+        </p>
+
+        <div class="card-grid col2">
+          <div class="info-card">
+            <div class="info-card-icon">🛒</div>
+            <h3>광고·커머스</h3>
+            <p>상품 위치, 브랜드 노출, 배경 요소가 정확해야 캠페인 이미지로 사용할 수 있습니다.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🎮</div>
+            <h3>게임·메타버스</h3>
+            <p>장면 구성과 물체 상호작용이 논리적으로 맞아야 몰입감 있는 세계를 만들 수 있습니다.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📚</div>
+            <h3>교육 콘텐츠</h3>
+            <p>과학 실험, 절차 설명, 역사 장면에서 관계 오류는 학습자의 오해를 만들 수 있습니다.</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">🎨</div>
+            <h3>디자인 자동화</h3>
+            <p>사용자가 요구한 레이아웃과 시각적 제약을 정확히 반영해야 실무 도구가 됩니다.</p>
+          </div>
+        </div>
+
+        <div class="keypoint">
+          <p class="keypoint-title">LENLAB Takeaway</p>
+          <p class="keypoint-body">
+            이미지 생성 AI를 볼 때 질문을 바꿔야 합니다.
+            <strong>“잘 그렸나?”</strong>에서 <strong>“텍스트 속 관계를 이해했나?”</strong>로.
+            이 차이가 연구 벤치마크와 실제 제품 경쟁력을 가르는 기준이 될 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 6 -->
+      <div class="sec" id="sec6">
+        <p class="sec-label">06 — 정리</p>
+        <h2 class="sec-head">정리와 출처</h2>
+
+        <p class="prose">
+          <strong>Everything in Its Place</strong>는 이미지 생성 AI의 다음 과제가 단순한 시각적 품질 향상이 아니라
+          <strong>공간 관계와 장면 구조의 정확한 이해</strong>라는 점을 보여줍니다.
+          앞으로 생성형 AI가 실무에 더 깊이 들어갈수록, 모델은 “보기 좋은 그림”을 넘어 “조건을 정확히 지키는 장면”을 만들어야 합니다.
+        </p>
+
+        <ul class="source-list">
+          <li>
+            논문: <a href="https://arxiv.org/abs/2601.20354" target="_blank" rel="noopener">
+              Everything in Its Place: Benchmarking Spatial Intelligence of Text-to-Image Models
+            </a>
+          </li>
+          <li>
+            프로젝트 코드: <a href="https://github.com/AMAP-ML/SpatialGenEval" target="_blank" rel="noopener">
+              AMAP-ML/SpatialGenEval
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CLOSING -->
+      <div class="closing-box">
+        <p class="closing-box-label">마무리</p>
+        <h3>좋은 생성형 AI는 관계를 이해해야 합니다</h3>
+        <p>
+          이미지 생성 AI의 경쟁력은 점점 “화질”에서 “이해력”으로 이동하고 있습니다.
+          이 논문은 그 변화를 측정하기 위한 기준을 제시합니다.
+          LENLAB에서는 앞으로도 AI 연구를 실제 서비스와 비즈니스 관점에서 연결해 정리하겠습니다.
+        </p>
+        <a href="index.html#posts" class="next-post">
+          다른 글 보러가기 →
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </a>
+      </div>
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="sidebar-toc">
+        <p class="sidebar-title">목차</p>
+        <ul class="sidebar-toc-list">
+          <li><a href="#sec1" class="active"><span class="sidebar-toc-num">01</span> 주목할 이유</a></li>
+          <li><a href="#sec2"><span class="sidebar-toc-num">02</span> 문제 정의</a></li>
+          <li><a href="#sec3"><span class="sidebar-toc-num">03</span> 벤치마크</a></li>
+          <li><a href="#sec4"><span class="sidebar-toc-num">04</span> 공간 지능</a></li>
+          <li><a href="#sec5"><span class="sidebar-toc-num">05</span> 산업적 의미</a></li>
+          <li><a href="#sec6"><span class="sidebar-toc-num">06</span> 출처</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-meta">
+        <p class="sidebar-title">글 정보</p>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">카테고리</span>
+          <span class="smr-val">지식 공유</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">분야</span>
+          <span class="smr-val">AI</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">형식</span>
+          <span class="smr-val">뉴스 큐레이션</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">날짜</span>
+          <span class="smr-val">2026.05.04</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">읽기</span>
+          <span class="smr-val">약 7분</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">언어</span>
+          <span class="smr-val">한국어</span>
+        </div>
+      </div>
+
+      <div class="sidebar-related">
+        <p class="sidebar-title">관련 글</p>
+        <a href="#" class="related-item">
+          <span class="related-cat">지식 공유 · AI</span>
+          <span class="related-title">생성형 AI를 비즈니스 도구로 보는 방법</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">지식 공유 · 데이터</span>
+          <span class="related-title">데이터 분석가가 알아야 할 평가 지표</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">뉴스 큐레이션</span>
+          <span class="related-title">최신 AI 연구를 서비스 관점에서 읽기</span>
+        </a>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo-sm">
+      LEN<span class="footer-logo-dot">·</span>LAB
+    </a>
+    <span>© 2026 LENLAB — Khuslen. All rights reserved.</span>
+    <div class="footer-links-sm">
+      <a href="index.html">홈</a>
+      <a href="index.html#posts">블로그</a>
+      <a href="https://github.com/Khuslen09" target="_blank" rel="noopener">깃허브</a>
+    </div>
+  </footer>
+
+  <script>
+    /* CURSOR */
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    (function loop() {
+      rx += (mx - rx) * .12; ry += (my - ry) * .12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    /* THEME */
+    let isLight = localStorage.getItem('lenlab-theme') === 'light';
+    function applyTheme() {
+      document.documentElement.classList.toggle('light', isLight);
+      document.getElementById('themeIcon').textContent = isLight ? '☀︎' : '☾';
+    }
+    function toggleTheme() {
+      isLight = !isLight;
+      localStorage.setItem('lenlab-theme', isLight ? 'light' : 'dark');
+      applyTheme();
+    }
+    applyTheme();
+
+    /* SIDEBAR ACTIVE TOC */
+    const sideLinks = document.querySelectorAll('.sidebar-toc-list a');
+    const sections = document.querySelectorAll('.sec');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          sideLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+
+</html>
