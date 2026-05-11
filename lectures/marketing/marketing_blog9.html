@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마케팅 조사의 이해 — LENLAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-alt: #141414;
+      --bg-card: #181818;
+      --text: #f0ede8;
+      --text-dim: #aaaaaa;
+      --text-muted: #666666;
+      --text-faint: #333333;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-md: rgba(255, 255, 255, 0.11);
+      --red: #c8001a;
+      --red-dim: #8b0012;
+      --red-bg: rgba(200, 0, 26, 0.07);
+      --accent: #185FA5;
+      --accent-bg: #0e2d4a;
+      --accent-light: rgba(24, 95, 165, 0.15);
+      --green-bg: #0d2b10;
+      --green: #4caf50;
+      --purple-bg: #1e1030;
+      --purple: #9c88d4;
+      --orange-bg: #2a1800;
+      --orange: #e08c3a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-sans: 'Noto Sans KR', sans-serif;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    html.light {
+      --bg: #f7f5f0;
+      --bg-alt: #edeae3;
+      --bg-card: #ffffff;
+      --text: #111111;
+      --text-dim: #444444;
+      --text-muted: #777777;
+      --text-faint: #bbbbbb;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-md: rgba(0, 0, 0, 0.12);
+      --red-bg: rgba(200, 0, 26, 0.05);
+      --accent: #185FA5;
+      --accent-bg: #e6f1fb;
+      --accent-light: rgba(24, 95, 165, 0.1);
+      --green-bg: #eaf3de;
+      --green: #3b6d11;
+      --purple-bg: #eeedfe;
+      --purple: #534ab7;
+      --orange-bg: #faeeda;
+      --orange: #854f0b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.75;
+      transition: background 0.35s, color 0.35s;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    .cursor {
+      position: fixed; width: 7px; height: 7px;
+      background: var(--red); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s;
+    }
+    .cursor-ring {
+      position: fixed; width: 32px; height: 32px;
+      border: 1px solid rgba(200, 0, 26, .4); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+    body:has(a:hover) .cursor { width: 10px; height: 10px; background: var(--text); }
+    body:has(a:hover) .cursor-ring { border-color: var(--text); width: 44px; height: 44px; }
+
+    /* NAV */
+    .site-nav {
+      position: sticky; top: 0; z-index: 400;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 60px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      transition: background .35s, border-color .35s;
+    }
+    .nav-left { display: flex; align-items: center; gap: 28px; }
+    .brand {
+      font-family: var(--font-mono); font-size: 15px;
+      letter-spacing: .18em; color: var(--text);
+      text-decoration: none; display: flex; align-items: center; gap: 7px; font-weight: 400;
+    }
+    .brand-dot {
+      width: 6px; height: 6px; background: var(--red); border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.65); }
+    }
+    .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color .25s; }
+    .breadcrumb a:hover { color: var(--red); }
+    .breadcrumb-sep { color: var(--text-faint); }
+    .breadcrumb-current { color: var(--text-dim); }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-lang { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; }
+    .nav-lang button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-family: inherit; font-size: inherit;
+      letter-spacing: inherit; padding: 2px 0; transition: color .25s;
+    }
+    .nav-lang button.active, .nav-lang button:hover { color: var(--red); }
+    .theme-wrap { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-muted); }
+    .theme-btn {
+      width: 38px; height: 20px; background: var(--text-faint);
+      border: none; border-radius: 10px; cursor: pointer; position: relative; transition: background .3s;
+    }
+    .theme-btn::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--bg); transition: transform .3s, background .3s;
+    }
+    html.light .theme-btn { background: var(--red); }
+    html.light .theme-btn::after { transform: translateX(18px); }
+
+    /* LAYOUT */
+    .page-wrap {
+      max-width: 1160px; margin: 0 auto;
+      padding: 56px 48px 120px;
+      display: grid; grid-template-columns: 1fr 260px;
+      gap: 72px; align-items: start;
+    }
+
+    /* ARTICLE HEADER */
+    .article-header { margin-bottom: 48px; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tag {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 99px;
+      border: 1px solid var(--border-md); color: var(--text-muted);
+      background: transparent; transition: border-color .25s, color .25s;
+    }
+    .tag:hover { border-color: var(--red); color: var(--red); cursor: default; }
+    .tag.accent { background: var(--accent-bg); color: var(--accent); border-color: transparent; }
+    .tag.red { background: var(--red-bg); color: var(--red); border-color: rgba(200, 0, 26, .2); }
+    .article-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 300; line-height: 1.1; color: var(--text);
+      margin-bottom: 20px; letter-spacing: -.01em;
+    }
+    .article-title em { font-style: italic; color: var(--text-dim); }
+    .article-sub {
+      font-size: 16px; font-weight: 300; color: var(--text-dim);
+      line-height: 1.7; max-width: 660px; margin-bottom: 28px;
+    }
+    .meta-row {
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--text-muted);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0;
+    }
+    .meta-sep { color: var(--text-faint); }
+    .meta-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--red-bg); border: 1px solid rgba(200, 0, 26, .15);
+      color: var(--red); padding: 2px 10px; border-radius: 99px; font-size: 10px;
+    }
+    .meta-badge::before { content: ''; width: 5px; height: 5px; background: var(--red); border-radius: 50%; }
+
+    /* TOC BOX */
+    .toc-box {
+      background: var(--bg-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 48px;
+    }
+    .toc-box-title {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 14px;
+    }
+    .toc-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .toc-list a {
+      display: flex; align-items: baseline; gap: 10px;
+      color: var(--text-dim); text-decoration: none; font-size: 13px;
+      width: 100%; padding: 5px 8px; border-radius: var(--radius-sm);
+      transition: background .2s, color .2s;
+    }
+    .toc-list a:hover { background: var(--bg-card); color: var(--red); }
+    .toc-num { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); min-width: 22px; }
+
+    /* SECTION */
+    .sec { scroll-margin-top: 80px; margin-bottom: 64px; }
+    .sec-label {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--red);
+      margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+    }
+    .sec-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--red); }
+    .sec-head {
+      font-family: var(--font-serif); font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 300; line-height: 1.2; color: var(--text); margin-bottom: 20px;
+    }
+    .sec-head em { font-style: italic; color: var(--text-dim); }
+    .prose { font-size: 15px; color: var(--text-dim); line-height: 1.85; font-weight: 300; margin-bottom: 16px; }
+    .prose strong { font-weight: 500; color: var(--text); }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* CALLOUT */
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-bg); color: var(--accent);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 14px 20px; font-size: 14px; line-height: 1.7; margin: 24px 0;
+    }
+    html:not(.light) .callout { color: #8abde8; }
+    .callout.red { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+    html:not(.light) .callout.red { color: #e87070; }
+    .callout.green { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+    .callout.orange { border-color: var(--orange); background: var(--orange-bg); color: var(--orange); }
+    html:not(.light) .callout.orange { color: #e8b97a; }
+    .callout strong { font-weight: 600; }
+
+    /* KEYPOINT */
+    .keypoint {
+      background: var(--bg-card); border: 1px solid var(--border-md);
+      border-radius: var(--radius-lg); padding: 20px 24px; margin: 24px 0;
+    }
+    .keypoint-title {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--red);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .keypoint-title::before { content: '✦'; font-size: 8px; }
+    .keypoint-body { font-size: 14px; color: var(--text-dim); line-height: 1.75; }
+    .keypoint-body strong { color: var(--text); font-weight: 500; }
+
+    /* COMPARE GRID */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0 32px; }
+    .compare-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px 20px;
+    }
+    .compare-card.type-a { border-top: 2px solid var(--red); }
+    .compare-card.type-b { border-top: 2px solid var(--accent); }
+    .compare-card.type-c { border-top: 2px solid var(--green); }
+    .compare-head {
+      font-size: 13px; font-weight: 500; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px; color: var(--text);
+    }
+    .cdot { width: 8px; height: 8px; border-radius: 50%; }
+    .cdot-red { background: var(--red); }
+    .cdot-blue { background: var(--accent); }
+    .cdot-green { background: var(--green); }
+    .compare-row {
+      font-size: 13px; color: var(--text-muted); padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row .val { color: var(--text); font-weight: 500; font-size: 12px; text-align: right; }
+
+    /* CARD GRID */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 24px 0 32px; }
+    .card-grid.col2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid.col4 { grid-template-columns: repeat(4, 1fr); }
+    .info-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px 18px;
+    }
+    .info-card-icon {
+      width: 34px; height: 34px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; margin-bottom: 12px; background: var(--bg-alt);
+    }
+    .info-card h3 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .info-card p { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+    /* FACTOR LIST */
+    .factor-list { margin: 16px 0 32px; }
+    .factor-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .factor-item:first-child { padding-top: 0; }
+    .factor-item:last-child { border-bottom: none; }
+    .factor-icon {
+      min-width: 36px; height: 36px; border-radius: var(--radius-md);
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .factor-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .factor-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* DATA TABLE */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 20px 0 32px; }
+    .data-table th {
+      text-align: left; font-family: var(--font-mono); font-size: 10px;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted); font-weight: 400;
+      padding: 8px 10px; border-bottom: 1px solid var(--border-md);
+    }
+    .data-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg-alt); }
+    .td-strong { font-weight: 500; color: var(--text); }
+
+    /* BADGE */
+    .badge { display: inline-block; font-family: var(--font-mono); font-size: 10px; padding: 2px 10px; border-radius: 99px; font-weight: 500; }
+    .badge-blue { background: var(--accent-bg); color: var(--accent); }
+    .badge-green { background: var(--green-bg); color: var(--green); }
+    .badge-purple { background: var(--purple-bg); color: var(--purple); }
+    .badge-orange { background: var(--orange-bg); color: var(--orange); }
+    .badge-red { background: var(--red-bg); color: var(--red); }
+
+    /* CLOSING BOX */
+    .closing-box {
+      background: var(--bg-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 48px;
+    }
+    .closing-box-label {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--red); margin-bottom: 14px;
+    }
+    .closing-box h3 { font-family: var(--font-serif); font-size: 24px; font-weight: 300; color: var(--text); margin-bottom: 12px; }
+    .closing-box p { font-size: 14px; color: var(--text-muted); line-height: 1.75; }
+    .next-post {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 20px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--text); text-decoration: none;
+      border-bottom: 1px solid var(--red); padding-bottom: 3px; transition: color .25s;
+    }
+    .next-post:hover { color: var(--red); }
+    .next-post svg { transition: transform .25s; }
+    .next-post:hover svg { transform: translateX(4px); }
+
+    /* ERROR BOX (오류 유형) */
+    .error-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 16px 20px; margin: 12px 0;
+    }
+    .error-box-label {
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .error-box-q { font-size: 13.5px; color: var(--text-dim); margin-bottom: 6px; }
+    .error-box-bad { font-size: 13px; color: #e87070; margin-bottom: 4px; }
+    .error-box-good { font-size: 13px; color: var(--green); }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 80px; }
+    .sidebar-toc {
+      background: var(--bg-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 20px;
+    }
+    .sidebar-title {
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+    }
+    .sidebar-toc-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-toc-list a {
+      display: flex; align-items: baseline; gap: 8px; font-size: 12.5px;
+      color: var(--text-muted); text-decoration: none;
+      padding: 5px 8px; border-radius: var(--radius-sm); transition: background .2s, color .2s;
+    }
+    .sidebar-toc-list a:hover, .sidebar-toc-list a.active { background: var(--bg-card); color: var(--red); }
+    .sidebar-toc-num { font-family: var(--font-mono); font-size: 9px; color: var(--text-faint); min-width: 18px; }
+    .sidebar-meta {
+      background: var(--bg-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 20px;
+    }
+    .sidebar-meta-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+    }
+    .sidebar-meta-row:last-child { border-bottom: none; }
+    .smr-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+    .smr-val { color: var(--text-dim); font-size: 12px; text-align: right; }
+    .sidebar-related {
+      background: var(--bg-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px;
+    }
+    .related-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none;
+    }
+    .related-item:last-child { border-bottom: none; }
+    .related-cat { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--red); }
+    .related-title { font-size: 13px; color: var(--text-dim); line-height: 1.4; transition: color .2s; }
+    .related-item:hover .related-title { color: var(--text); }
+
+    /* FOOTER */
+    .site-footer {
+      border-top: 1px solid var(--border); padding: 28px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em;
+      color: var(--text-muted); background: var(--bg-alt); transition: background .35s;
+    }
+    .footer-logo-sm { display: flex; align-items: center; gap: 7px; color: var(--text); text-decoration: none; font-size: 12px; letter-spacing: .14em; }
+    .footer-logo-dot { color: var(--red); }
+    .footer-links-sm { display: flex; gap: 20px; }
+    .footer-links-sm a { color: var(--text-muted); text-decoration: none; transition: color .25s; }
+    .footer-links-sm a:hover { color: var(--red); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1000px) {
+      .page-wrap { grid-template-columns: 1fr; gap: 40px; padding: 40px 32px 80px; }
+      .sidebar { position: static; display: none; }
+      .site-nav { padding: 0 24px; }
+    }
+    @media (max-width: 640px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .article-title { font-size: 28px; }
+      .site-nav { padding: 0 16px; }
+      .page-wrap { padding: 32px 20px 60px; }
+      .breadcrumb { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <div class="nav-left">
+      <a href="index.html" class="brand">
+        <span class="brand-dot"></span>LENLAB
+      </a>
+      <div class="breadcrumb">
+        <a href="index.html#categories">강의 노트</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">마케팅관리</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-lang">
+        <button onclick="setLang('ko')" class="active" id="btn-ko">KO</button>
+        <button onclick="setLang('en')" id="btn-en">EN</button>
+        <button onclick="setLang('mn')" id="btn-mn">MN</button>
+      </div>
+      <div class="theme-wrap">
+        <span id="themeIcon">☾</span>
+        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE WRAP -->
+  <div class="page-wrap">
+
+    <!-- ARTICLE -->
+    <article>
+
+      <!-- HEADER -->
+      <header class="article-header">
+        <div class="tag-row">
+          <span class="tag accent">Marketing</span>
+          <span class="tag">마케팅관리</span>
+          <span class="tag">Research</span>
+          <span class="tag">Survey Design</span>
+          <span class="tag red">12주차</span>
+        </div>
+
+        <h1 class="article-title">
+          마케팅 조사의 이해<br><em>데이터에서 인사이트까지</em>
+        </h1>
+
+        <p class="article-sub">
+          감이 아닌 데이터로 의사결정한다 — 마케팅 조사의 개념부터 1·2차 자료의 차이, 3가지 조사 방법, 그리고 좋은 설문지를 만드는 실전 기준까지 한 번에 정리했습니다.
+        </p>
+
+        <div class="meta-row">
+          <span class="meta-badge">강의 노트</span>
+          <span class="meta-sep">·</span>
+          <span>마케팅관리 / 12주차</span>
+          <span class="meta-sep">·</span>
+          <span>2026.05.10</span>
+          <span class="meta-sep">·</span>
+          <span>읽는 시간 약 10분</span>
+        </div>
+      </header>
+
+      <!-- TOC -->
+      <div class="toc-box">
+        <p class="toc-box-title">목차</p>
+        <ul class="toc-list">
+          <li><a href="#sec1"><span class="toc-num">01</span> 마케팅 조사란 무엇인가</a></li>
+          <li><a href="#sec2"><span class="toc-num">02</span> 1차 자료 vs 2차 자료</a></li>
+          <li><a href="#sec3"><span class="toc-num">03</span> 3가지 조사 방법 비교</a></li>
+          <li><a href="#sec4"><span class="toc-num">04</span> 설문 접촉 방법과 채널 선택</a></li>
+          <li><a href="#sec5"><span class="toc-num">05</span> 좋은 설문지를 만드는 법</a></li>
+          <li><a href="#sec6"><span class="toc-num">06</span> 설문 문항 6대 오류</a></li>
+        </ul>
+      </div>
+
+      <!-- SECTION 1 -->
+      <div class="sec" id="sec1">
+        <p class="sec-label">01 — 개념</p>
+        <h2 class="sec-head">마케팅 조사란 무엇인가</h2>
+
+        <p class="prose">
+          <strong>마케팅 조사(Market Research)</strong>는 단순히 설문지를 돌리는 일이 아니다. 데이터를 수집하고, 정보를 분석해서 <strong>마케팅 의사결정에 실질적인 시사점을 도출하는 전 과정</strong>이다. 핵심은 '수집'이 아니라 '의사결정에 기여하는가'다.
+        </p>
+        <p class="prose">
+          좋은 마케팅 조사가 되기 위해서는 아래 4가지 조건을 반드시 갖춰야 한다. 하나라도 빠지면 그 조사는 자원 낭비에 가까워진다.
+        </p>
+
+        <div class="card-grid col4">
+          <div class="info-card">
+            <div class="info-card-icon">🎯</div>
+            <h3>관련성</h3>
+            <p>지금 내리려는 의사결정과 직접 연결되어야 한다</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">✅</div>
+            <h3>정확성</h3>
+            <p>오류 없이 신뢰할 수 있는 데이터여야 한다</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">⏰</div>
+            <h3>시의성</h3>
+            <p>의사결정이 필요한 시점에 맞게 제공되어야 한다</p>
+          </div>
+          <div class="info-card">
+            <div class="info-card-icon">📋</div>
+            <h3>완전성</h3>
+            <p>필요한 정보가 빠짐없이 담겨 있어야 한다</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>핵심 관점:</strong> 마케팅 조사는 단순한 데이터 수집 작업이 아니라, 올바른 질문을 설계하고 신뢰할 수 있는 방법으로 수집해서 의미 있는 인사이트를 뽑아내는 과학적 과정이다. 잘 설계된 조사 하나가 수천만 원짜리 마케팅 전략의 성패를 가른다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 2 -->
+      <div class="sec" id="sec2">
+        <p class="sec-label">02 — 자료 유형</p>
+        <h2 class="sec-head">1차 자료 vs 2차 자료</h2>
+
+        <p class="prose">
+          마케팅 조사에서 활용하는 데이터는 크게 두 종류로 나뉜다. 어떤 자료를 쓸지는 조사 목적, 가용 예산, 시간에 따라 달라진다. 실무에서는 2차 자료를 먼저 탐색하고, 부족한 부분만 1차 자료로 보완하는 순서가 효율적이다.
+        </p>
+
+        <div class="compare-grid">
+          <div class="compare-card type-a">
+            <div class="compare-head">
+              <div class="cdot cdot-red"></div>1차 자료 (Primary Data)
+            </div>
+            <div class="compare-row"><span>정의</span><span class="val">특정 목적을 위해 직접 수집</span></div>
+            <div class="compare-row"><span>별칭</span><span class="val">Field Data</span></div>
+            <div class="compare-row"><span>조사 방법</span><span class="val">관찰 / 설문 / 실험</span></div>
+            <div class="compare-row"><span>접촉 방법</span><span class="val">우편 / 전화 / 대인 / 온라인</span></div>
+            <div class="compare-row"><span>규모</span><span class="val">전수 / 표본 / 사례 / 패널</span></div>
+            <div class="compare-row"><span>비용</span><span class="val">상대적으로 높음</span></div>
+          </div>
+          <div class="compare-card type-b">
+            <div class="compare-head">
+              <div class="cdot cdot-blue"></div>2차 자료 (Secondary Data)
+            </div>
+            <div class="compare-row"><span>정의</span><span class="val">이미 수집되어 있는 정보 활용</span></div>
+            <div class="compare-row"><span>별칭</span><span class="val">Desk Research</span></div>
+            <div class="compare-row"><span>출처</span><span class="val">내부 자료 + 외부 자료</span></div>
+            <div class="compare-row"><span>활용 목적</span><span class="val">추세 파악 / 매출 예측</span></div>
+            <div class="compare-row"><span></span><span class="val">변수 간 관계성 파악</span></div>
+            <div class="compare-row"><span>비용</span><span class="val">상대적으로 낮음</span></div>
+          </div>
+        </div>
+
+        <div class="callout green">
+          <strong>실전 팁:</strong> 조사를 시작하기 전에 2차 자료를 먼저 탐색하자. 정부 통계, 산업 보고서, 사내 CRM 데이터를 먼저 검토하면 시간과 비용을 크게 아낄 수 있다. 1차 자료는 2차 자료로는 채울 수 없는 빈자리를 메울 때 투입한다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 3 -->
+      <div class="sec" id="sec3">
+        <p class="sec-label">03 — 조사 방법</p>
+        <h2 class="sec-head">3가지 조사 방법 비교</h2>
+
+        <p class="prose">
+          1차 자료를 수집하는 방법은 크게 세 가지다. 각각 특징과 장단점이 명확히 다르므로, 조사 목적에 맞는 방법을 선택하는 것이 핵심이다.
+        </p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>방법</th>
+              <th>특징</th>
+              <th>장점</th>
+              <th>주의점</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-strong">관찰 조사</td>
+              <td>조사 대상의 행동을 직접 관찰하고 기록</td>
+              <td>무의식적 행동 포착 가능, 의사소통 어려운 대상도 조사 가능</td>
+              <td>현재 보이는 행동만 조사 가능, 시간·비용 많이 소요</td>
+            </tr>
+            <tr>
+              <td class="td-strong">설문 조사</td>
+              <td>다수 응답자에게 질문을 통해 자료 수집</td>
+              <td>대규모 표본 조사 가능, 과거 행동·생각·태도 측정 가능</td>
+              <td>설문지 품질에 따라 자료 수준 차이, 사회적 바람직성 편향 발생 가능</td>
+            </tr>
+            <tr>
+              <td class="td-strong">실험 조사</td>
+              <td>변수 간 인과관계 규명을 위한 실험 설계</td>
+              <td>인과성 법칙 발견에 가장 적합한 방법</td>
+              <td>실험 설계 수준 중요, 대규모 조사 어려움, 연구 윤리 문제 발생 가능</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="prose">실험 조사는 특히 <strong>독립변수(원인)와 종속변수(결과)</strong>의 관계를 검증하는 데 강점을 가진다. 아래 두 가지 예시를 보면 구조가 명확해진다.</p>
+
+        <div class="factor-list">
+          <div class="factor-item">
+            <div class="factor-icon">💼</div>
+            <div>
+              <div class="factor-title">예시 1 — 정보 제시 순서가 채용 결정에 미치는 영향</div>
+              <div class="factor-desc">
+                <strong>독립변수:</strong> 구직자 정보 제시 순서 (긍정→부정 vs 부정→긍정)<br>
+                <strong>종속변수:</strong> 채용 합격 여부<br>
+                같은 정보라도 어떤 순서로 제시하느냐가 평가자의 판단에 영향을 미치는지 규명한다.
+              </div>
+            </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-icon">🥽</div>
+            <div>
+              <div class="factor-title">예시 2 — VR 체험 교육이 무대공포증 해소에 미치는 영향</div>
+              <div class="factor-desc">
+                <strong>독립변수:</strong> VR 체험 교육 유무<br>
+                <strong>종속변수:</strong> 무대공포증 정도<br>
+                VR 교육을 받은 집단과 받지 않은 집단을 비교해 인과관계를 확인한다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="keypoint">
+          <p class="keypoint-title">사회적 바람직성 편향이란?</p>
+          <p class="keypoint-body">
+            응답자가 자신의 실제 생각·행동 대신, <strong>사회적으로 바람직하다고 여겨지는 답을 선택하려는 경향</strong>이다. "환경을 위해 분리수거를 잘 하십니까?" 같은 질문에 실제보다 긍정적으로 답하는 것이 대표적인 예다. Public 상황(타인이 보이는)에서 이 편향이 더 강하게 나타나므로, 민감한 주제일수록 익명성 보장이 중요하다.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 4 -->
+      <div class="sec" id="sec4">
+        <p class="sec-label">04 — 접촉 채널</p>
+        <h2 class="sec-head">설문 접촉 방법과 <em>채널 선택 기준</em></h2>
+
+        <p class="prose">
+          설문 조사를 어떤 채널로 진행하느냐에 따라 조사 범위, 비용, 익명성, 데이터 품질이 완전히 달라진다. 채널 선택은 목적과 타깃에 따라 전략적으로 결정해야 한다.
+        </p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>채널</th>
+              <th>조사 범위</th>
+              <th>비용</th>
+              <th>익명성</th>
+              <th>시각자료</th>
+              <th>조사자 개입</th>
+              <th>적정 길이</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-strong">우편 조사</td>
+              <td>광범위</td>
+              <td><span class="badge badge-green">저렴</span></td>
+              <td>보장</td>
+              <td>가능</td>
+              <td>불가</td>
+              <td>A4 6페이지 이내</td>
+            </tr>
+            <tr>
+              <td class="td-strong">전화 조사</td>
+              <td>광범위</td>
+              <td><span class="badge badge-orange">보통</span></td>
+              <td>보통</td>
+              <td>불가</td>
+              <td>가능</td>
+              <td>10~15분 이내</td>
+            </tr>
+            <tr>
+              <td class="td-strong">대인 면접</td>
+              <td>협소</td>
+              <td><span class="badge badge-red">비쌈</span></td>
+              <td>미보장</td>
+              <td>가능</td>
+              <td>가능</td>
+              <td>90분 이내</td>
+            </tr>
+            <tr>
+              <td class="td-strong">온라인 조사</td>
+              <td>광범위</td>
+              <td><span class="badge badge-green">저렴</span></td>
+              <td>보장</td>
+              <td>가능</td>
+              <td>불가</td>
+              <td>10~15분 이내</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>현실적 선택:</strong> 최근에는 <strong>온라인 조사</strong>가 비용 대비 효율이 가장 높아 가장 많이 활용된다. 다만 특정 연령층(고령층 등)이 타깃일 경우 표본 편향이 생길 수 있으므로 이를 고려한 채널 보완이 필요하다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 5 -->
+      <div class="sec" id="sec5">
+        <p class="sec-label">05 — 설문 설계</p>
+        <h2 class="sec-head">좋은 설문지를 만드는 법</h2>
+
+        <p class="prose">
+          설문지는 단순히 질문을 나열하는 문서가 아니다. 문항 순서, 워딩, 길이 하나하나가 응답률과 자료 품질에 직접 영향을 미친다.
+        </p>
+
+        <div class="factor-list">
+          <div class="factor-item">
+            <div class="factor-icon">🔢</div>
+            <div>
+              <div class="factor-title">문항 순서 — 쉬운 것을 먼저</div>
+              <div class="factor-desc">쉬운 질문을 앞에, 어렵고 복잡한 질문을 뒤에 배치한다. 초반에 응답자를 지치게 만들면 이후 응답의 질이 급격히 떨어진다. 중요한 질문도 앞부분에 두는 것이 원칙이다 — 후반부로 갈수록 응답자의 집중력이 낮아지기 때문이다.</div>
+            </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-icon">✍️</div>
+            <div>
+              <div class="factor-title">워딩 설계 — 명확하고 중립적으로</div>
+              <div class="factor-desc">질문의 단어 하나가 응답 방향을 바꾼다. 특정 방향으로 유도하는 표현, 이중으로 해석될 수 있는 단어, 응답자가 알 수 없는 전문용어는 반드시 피한다.</div>
+            </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-icon">📈</div>
+            <div>
+              <div class="factor-title">응답률을 높이는 실전 전략</div>
+              <div class="factor-desc">
+                ① <strong>인센티브 제공:</strong> 소정의 사례(경품, 포인트)는 참여율을 크게 높인다.<br>
+                ② <strong>적정 길이 유지:</strong> 채널별 권장 시간 내에서 설계한다.<br>
+                ③ <strong>진행률 표시:</strong> "3/10 완료" 같은 진행 상황 표시가 완료율을 높인다.
+              </div>
+            </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-icon">⚖️</div>
+            <div>
+              <div class="factor-title">척도 선택 — 4점 vs 5점</div>
+              <div class="factor-desc">
+                <strong>4점 척도(중립 없음):</strong> 매우 그렇다 / 그렇다 / 그렇지 않다 / 매우 그렇지 않다 → 응답자가 확실한 입장을 취하도록 강제한다.<br>
+                <strong>5점 척도(중립 있음):</strong> 위 4개 + '보통이다' 포함 → 판단이 어려운 민감한 주제에 적합하다.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SECTION 6 -->
+      <div class="sec" id="sec6">
+        <p class="sec-label">06 — 오류 유형</p>
+        <h2 class="sec-head">설문 문항 <em>6대 오류</em></h2>
+
+        <p class="prose">
+          아무리 좋은 의도로 설문을 만들어도, 아래 6가지 오류 중 하나에 걸리면 데이터 신뢰성이 무너진다. 설문지 검토 시 체크리스트로 활용하자.
+        </p>
+
+        <div class="error-box">
+          <div class="error-box-label">① 유도 질문 (Leading Question)</div>
+          <div class="error-box-q">응답자를 특정 방향으로 유도하는 질문</div>
+          <div class="error-box-bad">❌ "왜 웬디스 버거가 경쟁사보다 더 신선하다고 생각하십니까?" → 이미 '더 신선하다'는 전제가 깔려 있다</div>
+          <div class="error-box-good">✅ "웬디스 버거에 대해 어떻게 생각하십니까?"</div>
+        </div>
+
+        <div class="error-box">
+          <div class="error-box-label">② 모호한 질문 (Ambiguous Question)</div>
+          <div class="error-box-q">응답자마다 다르게 해석할 수 있는 질문</div>
+          <div class="error-box-bad">❌ "패스트푸드를 정기적으로 가십니까? □예 □아니오" → '정기적'이 하루 1회인지, 한 달 1회인지 모호하다</div>
+          <div class="error-box-good">✅ "패스트푸드 레스토랑을 한 달에 몇 번 방문하십니까?"</div>
+        </div>
+
+        <div class="error-box">
+          <div class="error-box-label">③ 답할 수 없는 질문 (Unanswerable Question)</div>
+          <div class="error-box-q">응답자가 실질적으로 기억하거나 판단할 수 없는 질문</div>
+          <div class="error-box-bad">❌ "처음으로 햄버거를 먹었을 때의 상황은 어떠했습니까?" → 대부분 기억조차 못 한다</div>
+          <div class="error-box-good">✅ 응답 가능한 범위 내의 최근 경험으로 질문을 바꾼다</div>
+        </div>
+
+        <div class="error-box">
+          <div class="error-box-label">④ 이중 질문 (Two Questions in One)</div>
+          <div class="error-box-q">하나의 문항에 두 가지 내용을 동시에 묻는 질문</div>
+          <div class="error-box-bad">❌ "웬디스의 햄버거와 칠리를 드십니까? □예 □아니오" → 햄버거는 먹지만 칠리는 안 먹는 사람은 어떻게 답하나?</div>
+          <div class="error-box-good">✅ 햄버거와 칠리를 각각 별도 문항으로 분리한다</div>
+        </div>
+
+        <div class="error-box">
+          <div class="error-box-label">⑤ 비망라적 보기 (Nonexhaustive Question)</div>
+          <div class="error-box-q">선택지가 모든 경우를 포함하지 못하는 질문</div>
+          <div class="error-box-bad">❌ 거주 형태: □단독주택 □기숙사 → 아파트에 사는 사람은?</div>
+          <div class="error-box-good">✅ □단독주택 □기숙사 □아파트 □기타(직접 입력) 로 모든 경우를 포함한다</div>
+        </div>
+
+        <div class="error-box">
+          <div class="error-box-label">⑥ 비상호배타적 보기 (Nonmutually Exclusive Answers)</div>
+          <div class="error-box-q">선택지가 겹쳐서 응답자가 어디에 체크해야 할지 모르는 질문</div>
+          <div class="error-box-bad">❌ 나이: □20세 미만 □20~40세 □40세 이상 → 40세는 두 번째와 세 번째 중 어디에?</div>
+          <div class="error-box-good">✅ □20세 미만 □20~39세 □40세 이상 으로 경계를 명확히 한다</div>
+        </div>
+
+        <div class="callout orange">
+          <strong>실무 체크리스트:</strong> 설문지를 완성한 뒤 반드시 소수의 파일럿 응답자(5~10명)에게 먼저 테스트하자. 설계자 눈에는 보이지 않던 오류가 응답자 입장에서는 명확하게 드러난다.
+        </div>
+      </div>
+
+      <!-- CLOSING -->
+      <div class="closing-box">
+        <p class="closing-box-label">마무리</p>
+        <h3>좋은 질문이 좋은 데이터를 만든다</h3>
+        <p>
+          마케팅 조사의 본질은 <strong>올바른 질문 설계</strong>에 있다. 1차/2차 자료를 전략적으로 조합하고, 조사 목적에 맞는 방법과 채널을 선택하고, 6대 오류를 피한 설문지를 만드는 것 — 이 세 가지가 맞아떨어질 때 비로소 의사결정에 기여하는 진짜 마케팅 조사가 완성된다.
+        </p>
+        <a href="#" class="next-post">
+          다음 강의 노트 →
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </a>
+      </div>
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="sidebar-toc">
+        <p class="sidebar-title">목차</p>
+        <ul class="sidebar-toc-list">
+          <li><a href="#sec1" class="active"><span class="sidebar-toc-num">01</span> 마케팅 조사란?</a></li>
+          <li><a href="#sec2"><span class="sidebar-toc-num">02</span> 1차 vs 2차 자료</a></li>
+          <li><a href="#sec3"><span class="sidebar-toc-num">03</span> 3가지 조사 방법</a></li>
+          <li><a href="#sec4"><span class="sidebar-toc-num">04</span> 접촉 채널 선택</a></li>
+          <li><a href="#sec5"><span class="sidebar-toc-num">05</span> 설문지 설계법</a></li>
+          <li><a href="#sec6"><span class="sidebar-toc-num">06</span> 6대 오류</a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar-meta">
+        <p class="sidebar-title">글 정보</p>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">카테고리</span>
+          <span class="smr-val">강의 노트</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">수업</span>
+          <span class="smr-val">마케팅관리</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">주차</span>
+          <span class="smr-val">Week 12</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">날짜</span>
+          <span class="smr-val">2026.05.10</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">읽기</span>
+          <span class="smr-val">약 10분</span>
+        </div>
+        <div class="sidebar-meta-row">
+          <span class="smr-label">언어</span>
+          <span class="smr-val">KO / EN / MN</span>
+        </div>
+      </div>
+
+      <div class="sidebar-related">
+        <p class="sidebar-title">관련 글</p>
+        <a href="#" class="related-item">
+          <span class="related-cat">강의 노트 · Week 10</span>
+          <span class="related-title">소비자 행동 분석 — 구매 의사결정 프로세스</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">강의 노트 · Week 11</span>
+          <span class="related-title">시장 세분화와 타깃 마케팅 전략</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">강의 노트 · Week 13</span>
+          <span class="related-title">브랜드 자산과 포지셔닝 전략</span>
+        </a>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo-sm">
+      LEN<span class="footer-logo-dot">·</span>LAB
+    </a>
+    <span>© 2026 LENLAB — Khuslen. All rights reserved.</span>
+    <div class="footer-links-sm">
+      <a href="index.html">Home</a>
+      <a href="index.html#posts">Blog</a>
+      <a href="https://github.com/Khuslen09" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    /* CURSOR */
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    (function loop() {
+      rx += (mx - rx) * .12; ry += (my - ry) * .12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    /* THEME */
+    let isLight = localStorage.getItem('lenlab-theme') === 'light';
+    function applyTheme() {
+      document.documentElement.classList.toggle('light', isLight);
+      document.getElementById('themeIcon').textContent = isLight ? '☀︎' : '☾';
+    }
+    function toggleTheme() {
+      isLight = !isLight;
+      localStorage.setItem('lenlab-theme', isLight ? 'light' : 'dark');
+      applyTheme();
+    }
+    applyTheme();
+
+    /* LANGUAGE */
+    let currentLang = localStorage.getItem('lenlab-lang') || 'ko';
+    function setLang(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        el.style.display = el.dataset.lang === lang ? 'block' : 'none';
+      });
+      ['ko', 'en', 'mn'].forEach(l => {
+        const b = document.getElementById('btn-' + l);
+        if (b) b.classList.toggle('active', l === lang);
+      });
+      document.documentElement.lang = lang;
+      localStorage.setItem('lenlab-lang', lang);
+    }
+    setLang(currentLang);
+
+    /* SIDEBAR ACTIVE TOC */
+    const sideLinks = document.querySelectorAll('.sidebar-toc-list a');
+    const sections = document.querySelectorAll('.sec');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          sideLinks.forEach(a => {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>소비자 행동의 이해 — LENLAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a; --bg-alt: #141414; --bg-card: #181818;
+      --text: #f0ede8; --text-dim: #aaaaaa; --text-muted: #666666; --text-faint: #333333;
+      --border: rgba(255,255,255,0.07); --border-md: rgba(255,255,255,0.11);
+      --red: #c8001a; --red-dim: #8b0012; --red-bg: rgba(200,0,26,0.07);
+      --accent: #185FA5; --accent-bg: #0e2d4a; --accent-light: rgba(24,95,165,0.15);
+      --green-bg: #0d2b10; --green: #4caf50;
+      --purple-bg: #1e1030; --purple: #9c88d4;
+      --orange-bg: #2a1800; --orange: #e08c3a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-mono: 'DM Mono', 'Courier New', monospace;
+      --font-sans: 'Noto Sans KR', sans-serif;
+      --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+    }
+    html.light {
+      --bg: #f7f5f0; --bg-alt: #edeae3; --bg-card: #ffffff;
+      --text: #111111; --text-dim: #444444; --text-muted: #777777; --text-faint: #bbbbbb;
+      --border: rgba(0,0,0,0.08); --border-md: rgba(0,0,0,0.12);
+      --red-bg: rgba(200,0,26,0.05); --accent: #185FA5; --accent-bg: #e6f1fb;
+      --accent-light: rgba(24,95,165,0.1); --green-bg: #eaf3de; --green: #3b6d11;
+      --purple-bg: #eeedfe; --purple: #534ab7; --orange-bg: #faeeda; --orange: #854f0b;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:15px;line-height:1.75;transition:background .35s,color .35s;cursor:none;}
+
+    .cursor{position:fixed;width:7px;height:7px;background:var(--red);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+    .cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(200,0,26,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+    body:has(a:hover) .cursor{width:10px;height:10px;background:var(--text);}
+    body:has(a:hover) .cursor-ring{border-color:var(--text);width:44px;height:44px;}
+
+    .site-nav{position:sticky;top:0;z-index:400;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:60px;background:var(--bg);border-bottom:1px solid var(--border);backdrop-filter:blur(14px);transition:background .35s,border-color .35s;}
+    .nav-left{display:flex;align-items:center;gap:28px;}
+    .brand{font-family:var(--font-mono);font-size:15px;letter-spacing:.18em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:7px;font-weight:400;}
+    .brand-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.65);}}
+    .breadcrumb{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--text-muted);text-transform:uppercase;}
+    .breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .25s;}
+    .breadcrumb a:hover{color:var(--red);}
+    .breadcrumb-sep{color:var(--text-faint);}
+    .breadcrumb-current{color:var(--text-dim);}
+    .nav-right{display:flex;align-items:center;gap:20px;}
+    .nav-lang{display:flex;gap:10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;}
+    .nav-lang button{background:none;border:none;cursor:pointer;color:var(--text-muted);font-family:inherit;font-size:inherit;letter-spacing:inherit;padding:2px 0;transition:color .25s;}
+    .nav-lang button.active,.nav-lang button:hover{color:var(--red);}
+    .theme-wrap{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-muted);}
+    .theme-btn{width:38px;height:20px;background:var(--text-faint);border:none;border-radius:10px;cursor:pointer;position:relative;transition:background .3s;}
+    .theme-btn::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--bg);transition:transform .3s,background .3s;}
+    html.light .theme-btn{background:var(--red);}
+    html.light .theme-btn::after{transform:translateX(18px);}
+
+    .page-wrap{max-width:1160px;margin:0 auto;padding:56px 48px 120px;display:grid;grid-template-columns:1fr 260px;gap:72px;align-items:start;}
+
+    .article-header{margin-bottom:48px;}
+    .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+    .tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:99px;border:1px solid var(--border-md);color:var(--text-muted);background:transparent;transition:border-color .25s,color .25s;}
+    .tag:hover{border-color:var(--red);color:var(--red);cursor:default;}
+    .tag.accent{background:var(--accent-bg);color:var(--accent);border-color:transparent;}
+    .tag.red{background:var(--red-bg);color:var(--red);border-color:rgba(200,0,26,.2);}
+    .article-title{font-family:var(--font-serif);font-size:clamp(32px,4.5vw,58px);font-weight:300;line-height:1.1;color:var(--text);margin-bottom:20px;letter-spacing:-.01em;}
+    .article-title em{font-style:italic;color:var(--text-dim);}
+    .article-sub{font-size:16px;font-weight:300;color:var(--text-dim);line-height:1.7;max-width:660px;margin-bottom:28px;}
+    .meta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--text-muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:12px 0;}
+    .meta-sep{color:var(--text-faint);}
+    .meta-badge{display:inline-flex;align-items:center;gap:5px;background:var(--red-bg);border:1px solid rgba(200,0,26,.15);color:var(--red);padding:2px 10px;border-radius:99px;font-size:10px;}
+    .meta-badge::before{content:'';width:5px;height:5px;background:var(--red);border-radius:50%;}
+
+    .toc-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:48px;}
+    .toc-box-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;}
+    .toc-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+    .toc-list a{display:flex;align-items:baseline;gap:10px;color:var(--text-dim);text-decoration:none;font-size:13px;width:100%;padding:5px 8px;border-radius:var(--radius-sm);transition:background .2s,color .2s;}
+    .toc-list a:hover{background:var(--bg-card);color:var(--red);}
+    .toc-num{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);min-width:22px;}
+
+    .sec{scroll-margin-top:80px;margin-bottom:64px;}
+    .sec-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+    .sec-label::before{content:'';display:block;width:20px;height:1px;background:var(--red);}
+    .sec-head{font-family:var(--font-serif);font-size:clamp(22px,2.8vw,34px);font-weight:300;line-height:1.2;color:var(--text);margin-bottom:20px;}
+    .sec-head em{font-style:italic;color:var(--text-dim);}
+    .prose{font-size:15px;color:var(--text-dim);line-height:1.85;font-weight:300;margin-bottom:16px;}
+    .prose strong{font-weight:500;color:var(--text);}
+    .divider{border:none;border-top:1px solid var(--border);margin:48px 0;}
+
+    .callout{border-left:3px solid var(--accent);background:var(--accent-bg);color:var(--accent);border-radius:0 var(--radius-md) var(--radius-md) 0;padding:14px 20px;font-size:14px;line-height:1.7;margin:24px 0;}
+    html:not(.light) .callout{color:#8abde8;}
+    .callout.red{border-color:var(--red);background:var(--red-bg);color:var(--red);}
+    html:not(.light) .callout.red{color:#e87070;}
+    .callout.green{border-color:var(--green);background:var(--green-bg);color:var(--green);}
+    .callout.orange{border-color:var(--orange);background:var(--orange-bg);color:var(--orange);}
+    html:not(.light) .callout.orange{color:#e8b97a;}
+    .callout strong{font-weight:600;}
+
+    .keypoint{background:var(--bg-card);border:1px solid var(--border-md);border-radius:var(--radius-lg);padding:20px 24px;margin:24px 0;}
+    .keypoint-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .keypoint-title::before{content:'✦';font-size:8px;}
+    .keypoint-body{font-size:14px;color:var(--text-dim);line-height:1.75;}
+    .keypoint-body strong{color:var(--text);font-weight:500;}
+
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0 32px;}
+    .compare-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;}
+    .compare-card.type-a{border-top:2px solid var(--red);}
+    .compare-card.type-b{border-top:2px solid var(--accent);}
+    .compare-card.type-c{border-top:2px solid var(--green);}
+    .compare-head{font-size:13px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--text);}
+    .cdot{width:8px;height:8px;border-radius:50%;}
+    .cdot-red{background:var(--red);}
+    .cdot-blue{background:var(--accent);}
+    .cdot-green{background:var(--green);}
+    .compare-row{font-size:13px;color:var(--text-muted);padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+    .compare-row:last-child{border-bottom:none;}
+    .compare-row .val{color:var(--text);font-weight:500;font-size:12px;text-align:right;}
+
+    .card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0 32px;}
+    .card-grid.col2{grid-template-columns:repeat(2,1fr);}
+    .card-grid.col4{grid-template-columns:repeat(4,1fr);}
+    .card-grid.col5{grid-template-columns:repeat(5,1fr);}
+    .info-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;}
+    .info-card.accent-top{border-top:2px solid var(--accent);}
+    .info-card.red-top{border-top:2px solid var(--red);}
+    .info-card.green-top{border-top:2px solid var(--green);}
+    .info-card.purple-top{border-top:2px solid var(--purple);}
+    .info-card.orange-top{border-top:2px solid var(--orange);}
+    .info-card-icon{width:34px;height:34px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px;background:var(--bg-alt);}
+    .info-card h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;}
+    .info-card p{font-size:12px;color:var(--text-muted);line-height:1.55;}
+    .info-card .card-pct{font-family:var(--font-mono);font-size:22px;font-weight:500;color:var(--text);margin-bottom:4px;}
+    .info-card .card-label{font-size:11px;color:var(--text-muted);}
+
+    .factor-list{margin:16px 0 32px;}
+    .factor-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);}
+    .factor-item:first-child{padding-top:0;}
+    .factor-item:last-child{border-bottom:none;}
+    .factor-icon{min-width:36px;height:36px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;}
+    .factor-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;}
+    .factor-desc{font-size:13px;color:var(--text-muted);line-height:1.6;}
+
+    .data-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:20px 0 32px;}
+    .data-table th{text-align:left;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:400;padding:8px 10px;border-bottom:1px solid var(--border-md);}
+    .data-table td{padding:10px;border-bottom:1px solid var(--border);color:var(--text-dim);vertical-align:top;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr:hover td{background:var(--bg-alt);}
+    .td-strong{font-weight:500;color:var(--text);}
+
+    .badge{display:inline-block;font-family:var(--font-mono);font-size:10px;padding:2px 10px;border-radius:99px;font-weight:500;}
+    .badge-blue{background:var(--accent-bg);color:var(--accent);}
+    .badge-green{background:var(--green-bg);color:var(--green);}
+    .badge-purple{background:var(--purple-bg);color:var(--purple);}
+    .badge-orange{background:var(--orange-bg);color:var(--orange);}
+    .badge-red{background:var(--red-bg);color:var(--red);}
+
+    /* 혁신 확산 타임라인 */
+    .diffusion-bar{display:flex;border-radius:var(--radius-md);overflow:hidden;margin:24px 0 8px;height:48px;}
+    .diffusion-seg{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;font-weight:500;letter-spacing:.05em;color:#fff;transition:opacity .2s;}
+    .diffusion-seg:hover{opacity:.85;}
+    .seg-innovators{background:#c8001a;flex:2.5;}
+    .seg-early{background:#185FA5;flex:13.5;}
+    .seg-early-maj{background:#9c88d4;flex:34;}
+    .seg-late-maj{background:#4caf50;flex:34;}
+    .seg-laggards{background:#e08c3a;flex:16;}
+    .diffusion-labels{display:flex;font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-bottom:24px;}
+    .diffusion-labels span{text-align:center;}
+    .diffusion-labels span:nth-child(1){flex:2.5;}
+    .diffusion-labels span:nth-child(2){flex:13.5;}
+    .diffusion-labels span:nth-child(3){flex:34;}
+    .diffusion-labels span:nth-child(4){flex:34;}
+    .diffusion-labels span:nth-child(5){flex:16;}
+
+    /* 의사결정 5단계 흐름 */
+    .journey-flow{display:flex;align-items:center;gap:0;margin:24px 0 32px;overflow-x:auto;}
+    .journey-step{flex:1;min-width:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 10px;text-align:center;position:relative;}
+    .journey-step h4{font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;}
+    .journey-step p{font-size:11px;color:var(--text-muted);line-height:1.5;}
+    .journey-step.step-1{border-top:2px solid var(--red);}
+    .journey-step.step-2{border-top:2px solid var(--orange);}
+    .journey-step.step-3{border-top:2px solid var(--purple);}
+    .journey-step.step-4{border-top:2px solid var(--accent);}
+    .journey-step.step-5{border-top:2px solid var(--green);}
+    .journey-arrow{color:var(--text-faint);font-size:16px;padding:0 6px;flex-shrink:0;}
+
+    /* 기대 불일치 모형 */
+    .expect-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0;}
+    .expect-card{border-radius:var(--radius-lg);padding:16px 18px;text-align:center;}
+    .expect-card.neutral{background:var(--bg-card);border:1px solid var(--border);}
+    .expect-card.positive{background:var(--green-bg);border:1px solid rgba(76,175,80,.2);}
+    .expect-card.negative{background:var(--red-bg);border:1px solid rgba(200,0,26,.2);}
+    .expect-eq{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+    .expect-result{font-size:14px;font-weight:500;margin-bottom:4px;}
+    .expect-card.neutral .expect-result{color:var(--text);}
+    .expect-card.positive .expect-result{color:var(--green);}
+    html:not(.light) .expect-card.positive .expect-result{color:#7ecb81;}
+    .expect-card.negative .expect-result{color:var(--red);}
+    html:not(.light) .expect-card.negative .expect-result{color:#e87070;}
+    .expect-sub{font-size:11px;color:var(--text-muted);}
+
+    .closing-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 32px;margin-top:48px;}
+    .closing-box-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+    .closing-box h3{font-family:var(--font-serif);font-size:24px;font-weight:300;color:var(--text);margin-bottom:12px;}
+    .closing-box p{font-size:14px;color:var(--text-muted);line-height:1.75;}
+    .next-post{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);text-decoration:none;border-bottom:1px solid var(--red);padding-bottom:3px;transition:color .25s;}
+    .next-post:hover{color:var(--red);}
+    .next-post svg{transition:transform .25s;}
+    .next-post:hover svg{transform:translateX(4px);}
+
+    .sidebar{position:sticky;top:80px;}
+    .sidebar-toc{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:20px;}
+    .sidebar-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;}
+    .sidebar-toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+    .sidebar-toc-list a{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--text-muted);text-decoration:none;padding:5px 8px;border-radius:var(--radius-sm);transition:background .2s,color .2s;}
+    .sidebar-toc-list a:hover,.sidebar-toc-list a.active{background:var(--bg-card);color:var(--red);}
+    .sidebar-toc-num{font-family:var(--font-mono);font-size:9px;color:var(--text-faint);min-width:18px;}
+    .sidebar-meta{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:20px;}
+    .sidebar-meta-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+    .sidebar-meta-row:last-child{border-bottom:none;}
+    .smr-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+    .smr-val{color:var(--text-dim);font-size:12px;text-align:right;}
+    .sidebar-related{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;}
+    .related-item{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--border);text-decoration:none;}
+    .related-item:last-child{border-bottom:none;}
+    .related-cat{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);}
+    .related-title{font-size:13px;color:var(--text-dim);line-height:1.4;transition:color .2s;}
+    .related-item:hover .related-title{color:var(--text);}
+
+    .site-footer{border-top:1px solid var(--border);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--text-muted);background:var(--bg-alt);transition:background .35s;}
+    .footer-logo-sm{display:flex;align-items:center;gap:7px;color:var(--text);text-decoration:none;font-size:12px;letter-spacing:.14em;}
+    .footer-logo-dot{color:var(--red);}
+    .footer-links-sm{display:flex;gap:20px;}
+    .footer-links-sm a{color:var(--text-muted);text-decoration:none;transition:color .25s;}
+    .footer-links-sm a:hover{color:var(--red);}
+
+    @media(max-width:1000px){.page-wrap{grid-template-columns:1fr;gap:40px;padding:40px 32px 80px;}.sidebar{position:static;display:none;}.site-nav{padding:0 24px;}}
+    @media(max-width:640px){.compare-grid,.expect-grid,.card-grid.col5{grid-template-columns:1fr;}.journey-flow{flex-direction:column;}.card-grid{grid-template-columns:1fr 1fr;}.article-title{font-size:28px;}.site-nav{padding:0 16px;}.page-wrap{padding:32px 20px 60px;}.breadcrumb{display:none;}}
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav class="site-nav">
+    <div class="nav-left">
+      <a href="index.html" class="brand"><span class="brand-dot"></span>LENLAB</a>
+      <div class="breadcrumb">
+        <a href="index.html#categories">강의 노트</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">마케팅관리</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="nav-lang">
+        <button onclick="setLang('ko')" class="active" id="btn-ko">KO</button>
+        <button onclick="setLang('en')" id="btn-en">EN</button>
+        <button onclick="setLang('mn')" id="btn-mn">MN</button>
+      </div>
+      <div class="theme-wrap">
+        <span id="themeIcon">☾</span>
+        <button class="theme-btn" id="themeToggle" onclick="toggleTheme()"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE WRAP -->
+  <div class="page-wrap">
+    <article>
+
+      <!-- HEADER -->
+      <header class="article-header">
+        <div class="tag-row">
+          <span class="tag accent">Consumer Behavior</span>
+          <span class="tag">마케팅관리</span>
+          <span class="tag">의사결정</span>
+          <span class="tag">혁신 확산</span>
+          <span class="tag red">10주차</span>
+        </div>
+        <h1 class="article-title">소비자 행동의 이해<br><em>구매 결정의 심리와 구조</em></h1>
+        <p class="article-sub">
+          소비자는 왜, 어떻게 구매를 결정하는가 — B2C·B2B 소비자 유형 비교부터 5단계 의사결정 과정, 만족도를 결정하는 기대 불일치 모형, 그리고 혁신 확산 이론(Rogers)과 캐즘까지 한 번에 정리했습니다.
+        </p>
+        <div class="meta-row">
+          <span class="meta-badge">강의 노트</span>
+          <span class="meta-sep">·</span>
+          <span>마케팅관리 / 10주차</span>
+          <span class="meta-sep">·</span>
+          <span>2026.05.10</span>
+          <span class="meta-sep">·</span>
+          <span>읽는 시간 약 12분</span>
+        </div>
+      </header>
+
+      <!-- TOC -->
+      <div class="toc-box">
+        <p class="toc-box-title">목차</p>
+        <ul class="toc-list">
+          <li><a href="#sec1"><span class="toc-num">01</span> 소비자란 누구인가 — 정의와 역할</a></li>
+          <li><a href="#sec2"><span class="toc-num">02</span> B2C vs B2B — 소비자 유형 비교</a></li>
+          <li><a href="#sec3"><span class="toc-num">03</span> 소비자 의사결정 5단계 프로세스</a></li>
+          <li><a href="#sec4"><span class="toc-num">04</span> 소비자 만족도 — 기대 불일치 모형</a></li>
+          <li><a href="#sec5"><span class="toc-num">05</span> 기존 고객 유지 vs 신규 고객 획득</a></li>
+          <li><a href="#sec6"><span class="toc-num">06</span> 혁신 확산 이론과 캐즘</a></li>
+        </ul>
+      </div>
+
+      <!-- SEC 1 -->
+      <div class="sec" id="sec1">
+        <p class="sec-label">01 — 정의</p>
+        <h2 class="sec-head">소비자란 누구인가</h2>
+        <p class="prose">
+          <strong>소비자(Consumer)</strong>는 어떤 제품과 서비스를 소비할지 결정하고, 주문을 넣고, 대가를 지불하여 사용하는 사람이다. 정의는 단순해 보이지만, 실제 구매 상황에서 소비자는 하나의 역할이 아니라 여러 역할을 동시에 또는 순차적으로 수행한다.
+        </p>
+        <p class="prose">마케터가 소비자를 이해해야 하는 이유는 이 네 가지 역할이 항상 한 사람에게 집중되는 것이 아니기 때문이다. 예를 들어 어린이 장난감의 경우 <strong>사용자(User)</strong>는 아이지만 <strong>지불자(Payer)</strong>는 부모이고, <strong>의사결정자(Decider)</strong>는 또 다를 수 있다.</p>
+
+        <div class="card-grid col4">
+          <div class="info-card red-top">
+            <div class="info-card-icon">🧠</div>
+            <h3>의사결정자 (Decider)</h3>
+            <p>무엇을 살지 최종 결정을 내리는 사람</p>
+          </div>
+          <div class="info-card accent-top">
+            <div class="info-card-icon">💳</div>
+            <h3>지불자 (Payer)</h3>
+            <p>실제 비용을 부담하는 사람</p>
+          </div>
+          <div class="info-card green-top">
+            <div class="info-card-icon">🛍️</div>
+            <h3>구매자 (Buyer)</h3>
+            <p>실제로 구매 행위를 실행하는 사람</p>
+          </div>
+          <div class="info-card purple-top">
+            <div class="info-card-icon">😊</div>
+            <h3>사용자 (User)</h3>
+            <p>제품·서비스를 직접 소비하고 경험하는 사람</p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>마케팅 전략의 핵심:</strong> 누가 Decider이고 누가 Payer인지에 따라 마케팅 메시지의 대상과 내용이 달라진다. B2B에서는 특히 이 역할 분리가 극명하게 나타난다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SEC 2 -->
+      <div class="sec" id="sec2">
+        <p class="sec-label">02 — 유형 비교</p>
+        <h2 class="sec-head">B2C vs B2B — <em>소비자 유형 비교</em></h2>
+        <p class="prose">소비자는 크게 <strong>개인 소비자(B2C)</strong>와 <strong>산업재 소비자(B2B)</strong>로 나뉜다. 두 시장은 구매 방식, 의사결정 구조, 마케팅 접근법이 근본적으로 다르다.</p>
+
+        <div class="compare-grid">
+          <div class="compare-card type-a">
+            <div class="compare-head"><div class="cdot cdot-red"></div>B2C (개인 소비자)</div>
+            <div class="compare-row"><span>소비자 수</span><span class="val">많음</span></div>
+            <div class="compare-row"><span>거래량·금액</span><span class="val">적음 (건당)</span></div>
+            <div class="compare-row"><span>시장 수요</span><span class="val">본원적, 가격 탄력적</span></div>
+            <div class="compare-row"><span>의사결정</span><span class="val">전형적, 덜 복잡</span></div>
+            <div class="compare-row"><span>참여자 수</span><span class="val">소수 (주로 개인)</span></div>
+            <div class="compare-row"><span>제품</span><span class="val">기성품 위주</span></div>
+            <div class="compare-row"><span>가격</span><span class="val">고정 가격</span></div>
+            <div class="compare-row"><span>유통</span><span class="val">다양한 직간접 유통</span></div>
+          </div>
+          <div class="compare-card type-b">
+            <div class="compare-head"><div class="cdot cdot-blue"></div>B2B (산업재 소비자)</div>
+            <div class="compare-row"><span>소비자 수</span><span class="val">적음</span></div>
+            <div class="compare-row"><span>거래량·금액</span><span class="val">많음 (건당)</span></div>
+            <div class="compare-row"><span>시장 수요</span><span class="val">파생적, 단기 비탄력적</span></div>
+            <div class="compare-row"><span>의사결정</span><span class="val">사내 공식 절차, 복잡</span></div>
+            <div class="compare-row"><span>참여자 수</span><span class="val">다수 (구매위원회 등)</span></div>
+            <div class="compare-row"><span>제품</span><span class="val">고객 맞춤화 기반</span></div>
+            <div class="compare-row"><span>가격</span><span class="val">협상 가격</span></div>
+            <div class="compare-row"><span>유통</span><span class="val">협의 기반 직접 유통</span></div>
+          </div>
+        </div>
+
+        <div class="callout orange">
+          <strong>파생 수요(Derived Demand)란?</strong> B2B 수요는 B2C 최종 소비자의 수요에서 파생된다. 자동차 부품 회사의 수요는 자동차 소비자 수요에 달려 있다. 이 때문에 B2B 마케터는 자사 고객뿐 아니라 고객의 고객까지 파악해야 한다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SEC 3 -->
+      <div class="sec" id="sec3">
+        <p class="sec-label">03 — 의사결정</p>
+        <h2 class="sec-head">소비자 의사결정 <em>5단계 프로세스</em></h2>
+        <p class="prose">소비자가 구매에 이르는 과정은 단순한 선택이 아니라 5단계의 순환 여정이다. 각 단계에는 다음 단계로의 진행을 막는 장벽이 존재하며, 단계 간 전진과 후퇴가 모두 가능하다. 관여도가 높을수록 각 단계에서 더 많은 시간과 에너지를 투자한다.</p>
+
+        <div class="journey-flow">
+          <div class="journey-step step-1">
+            <h4>① 욕구인지</h4>
+            <p>이상적 상태 vs 현재 상태 격차 지각<br>매슬로 욕구 체계</p>
+          </div>
+          <div class="journey-arrow">→</div>
+          <div class="journey-step step-2">
+            <h4>② 정보탐색</h4>
+            <p>내적 탐색 → 외적 탐색<br>탐색 유형·원천·방식</p>
+          </div>
+          <div class="journey-arrow">→</div>
+          <div class="journey-step step-3">
+            <h4>③ 대안평가</h4>
+            <p>비교평가로 최선의 대안 선택<br>후광효과 주의</p>
+          </div>
+          <div class="journey-arrow">→</div>
+          <div class="journey-step step-4">
+            <h4>④ 구매</h4>
+            <p>점포·수량·시기·<br>지불 방법 결정</p>
+          </div>
+          <div class="journey-arrow">→</div>
+          <div class="journey-step step-5">
+            <h4>⑤ 구매 후 행동</h4>
+            <p>사용·평가·처분<br>재구매·구전·불평</p>
+          </div>
+        </div>
+
+        <div class="factor-list">
+          <div class="factor-item">
+            <div class="factor-icon">🔍</div>
+            <div>
+              <div class="factor-title">정보탐색 — 내적 vs 외적</div>
+              <div class="factor-desc">
+                소비자는 먼저 <strong>내적 탐색</strong>(기억 속 저장된 사전 지식과 경험)을 시도한다. 내적 탐색으로 충분하지 않을 때 비로소 <strong>외적 탐색</strong>으로 전환한다.<br><br>
+                외적 탐색의 정도는 ① 제품의 지각된 중요도 ② 지각된 위험 수준 ③ 탐색할 시간적 여유 ④ 탐색 자체를 즐기는 성향(예: 디깅족)에 따라 달라진다.
+              </div>
+            </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-icon">⭐</div>
+            <div>
+              <div class="factor-title">대안평가 — 후광효과(Halo Effect)</div>
+              <div class="factor-desc">
+                대안평가 단계에서 소비자는 대상의 <strong>부분적 특성이 전체 혹은 다른 영역 평가에 영향</strong>을 미치는 후광효과에 쉽게 빠진다.<br><br>
+                대표적인 예: <strong>원산지 효과</strong>(Made in Germany → 품질이 좋을 것이다), <strong>가격 효과</strong>(비쌀수록 좋다), <strong>브랜드 효과</strong>, <strong>판매처 효과</strong>(백화점 vs 할인마트). 관여도가 높을수록 대안의 수와 평가 기준이 많아진다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="keypoint">
+          <p class="keypoint-title">마케터를 위한 시사점</p>
+          <p class="keypoint-body">
+            소비자 의사결정은 직선이 아니라 <strong>순환 구조</strong>다. 구매 후 불만족은 다시 욕구인지 단계로 되돌아가게 하거나 경쟁 브랜드로 이탈하게 만든다. 따라서 마케터는 각 단계에서 다음 단계로의 진행을 방해하는 장벽을 제거하는 데 집중해야 한다.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SEC 4 -->
+      <div class="sec" id="sec4">
+        <p class="sec-label">04 — 만족도 모형</p>
+        <h2 class="sec-head">기대 불일치 모형 — <em>만족도는 어떻게 결정되는가</em></h2>
+        <p class="prose">
+          소비자 만족은 절대적인 제품 품질이 아니라 <strong>"내가 기대한 것"과 "실제 경험한 것"의 비교</strong>에서 결정된다. 이것이 기대 불일치 모형(Expectancy Disconfirmation Model)의 핵심이다.
+        </p>
+
+        <div class="expect-grid">
+          <div class="expect-card neutral">
+            <div class="expect-eq">사전 기대 = 지각된 성과</div>
+            <div class="expect-result">단순 만족</div>
+            <div class="expect-sub">기대한 만큼 받았다 — 불만은 없지만 충성도로 이어지기 어렵다</div>
+          </div>
+          <div class="expect-card positive">
+            <div class="expect-eq">사전 기대 &lt; 지각된 성과</div>
+            <div class="expect-result">긍정적 불일치 → 만족·감동</div>
+            <div class="expect-sub">기대 이상 경험 → 재구매·긍정 구전 발생</div>
+          </div>
+          <div class="expect-card negative">
+            <div class="expect-eq">사전 기대 &gt; 지각된 성과</div>
+            <div class="expect-result">부정적 불일치 → 불만족</div>
+            <div class="expect-sub">기대 이하 경험 → 이탈·부정 구전·불평 행동 발생</div>
+          </div>
+        </div>
+
+        <div class="callout red">
+          <strong>Q. 마케터는 소비자의 사전 기대를 높게 형성할수록 유리할까?</strong><br>
+          NO. 기대가 지나치게 높으면 실제 경험이 좋아도 불만족으로 이어질 수 있다. 과도한 마케팅 약속은 부메랑이 된다. 기대는 실제 성과 수준에 맞게 적절히 관리해야 한다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SEC 5 -->
+      <div class="sec" id="sec5">
+        <p class="sec-label">05 — 고객 유지</p>
+        <h2 class="sec-head">기존 고객 유지 vs <em>신규 고객 획득</em></h2>
+        <p class="prose">많은 기업이 신규 고객 획득에 집중하지만, 데이터는 기존 고객 유지의 압도적인 효율성을 보여준다. 만족한 고객이 재구매하고, 긍정적 구전을 일으키고, 더 많은 금액을 지출한다는 것은 수치로 증명된다.</p>
+
+        <div class="card-grid">
+          <div class="info-card red-top">
+            <div class="info-card-icon">💰</div>
+            <h3>1인당 마케팅 비용</h3>
+            <div class="card-pct">5×</div>
+            <div class="card-label">신규 고객 획득 비용이 기존 고객 유지 비용의 약 5배</div>
+          </div>
+          <div class="info-card accent-top">
+            <div class="info-card-icon">🎯</div>
+            <h3>1인당 구매 확률</h3>
+            <div class="card-pct">60~70%</div>
+            <div class="card-label">기존 고객의 구매 확률 (신규: 5~20%)</div>
+          </div>
+          <div class="info-card green-top">
+            <div class="info-card-icon">🛒</div>
+            <h3>1인당 지출 금액</h3>
+            <div class="card-pct">3×</div>
+            <div class="card-label">기존 고객이 신규 고객보다 약 3배 더 많이 지출</div>
+          </div>
+        </div>
+
+        <div class="data-table" style="margin-top:8px;">
+          <thead>
+            <tr>
+              <th>지표</th>
+              <th>정의</th>
+              <th>공식</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-strong">CV (Customer Value)</td>
+              <td>고객 가치</td>
+              <td>1인당 평균 구매금액 × 구매빈도</td>
+            </tr>
+            <tr>
+              <td class="td-strong">CLV (Customer Lifetime Value)</td>
+              <td>고객생애가치</td>
+              <td>고객가치(CV) × 일생기간</td>
+            </tr>
+            <tr>
+              <td class="td-strong">CE (Customer Equity)</td>
+              <td>고객자산</td>
+              <td>고객생애가치(CLV) × 총 고객수</td>
+            </tr>
+          </tbody>
+        </div>
+
+        <div class="callout green">
+          <strong>고객유지율 5% 상승의 파급력:</strong> 산업별로 차이가 있지만, 고객유지율이 5% 오르면 고객 1인당 이익이 최대 95%까지 증가할 수 있다. 기존 고객은 시간이 지날수록 마케팅 비용 없이도 구매량과 단가가 올라가기 때문이다.
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- SEC 6 -->
+      <div class="sec" id="sec6">
+        <p class="sec-label">06 — 혁신 확산</p>
+        <h2 class="sec-head">Rogers의 혁신 확산 이론과 <em>캐즘</em></h2>
+        <p class="prose">
+          <strong>혁신(Innovation)</strong>이란 소비자에게 새롭다고 인식되는 제품, 서비스 속성 또는 아이디어를 말한다. 모든 소비자가 혁신을 동시에 받아들이지는 않는다. Rogers(1983)는 소비자를 혁신 수용 속도에 따라 5개 집단으로 분류했다.
+        </p>
+
+        <!-- 확산 비율 바 -->
+        <div class="diffusion-bar">
+          <div class="diffusion-seg seg-innovators">2.5%</div>
+          <div class="diffusion-seg seg-early">13.5%</div>
+          <div class="diffusion-seg seg-early-maj">34%</div>
+          <div class="diffusion-seg seg-late-maj">34%</div>
+          <div class="diffusion-seg seg-laggards">16%</div>
+        </div>
+        <div class="diffusion-labels">
+          <span>혁신자</span><span>조기수용자</span><span>전기다수</span><span>후기다수</span><span>후발수용자</span>
+        </div>
+
+        <div class="card-grid col5">
+          <div class="info-card red-top">
+            <h3>혁신자 (Innovators) 2.5%</h3>
+            <p>모험적·위험추구 성향. 고소득·고학력. 전문 잡지 등 소수의 정보원 활용. <strong>도입기</strong> 주요 타깃.</p>
+          </div>
+          <div class="info-card orange-top">
+            <h3>조기 수용자 (Early Adopters) 13.5%</h3>
+            <p>소속 집단의 오피니언 리더. 사회 지향성 높고 구전 활발. <strong>성장기</strong> 주요 타깃.</p>
+          </div>
+          <div class="info-card purple-top">
+            <h3>전기 다수 (Early Majority) 34%</h3>
+            <p>구매를 신중하게 고려. 정보 수집 많고 다수 대안 평가. <strong>성장~성숙기</strong> 주요 타깃.</p>
+          </div>
+          <div class="info-card accent-top">
+            <h3>후기 다수 (Late Majority) 34%</h3>
+            <p>혁신에 회의적. 사회적 압력에 의해 수용. <strong>성숙기</strong> 주요 타깃.</p>
+          </div>
+          <div class="info-card green-top">
+            <h3>후발 수용자 (Laggards) 16%</h3>
+            <p>전통적 가치관. 혁신에 강한 저항. 노인층·저소득층 多. <strong>쇠퇴기</strong> 주요 타깃.</p>
+          </div>
+        </div>
+
+        <p class="prose">혁신 수용 과정은 단계적이다. 처음 혁신을 알게 되는 <strong>인식(Awareness)</strong>에서 시작해, 관심(Interest) → 평가(Evaluation) → 시험적 사용(Trial) → 수용(Adoption)으로 이어진다.</p>
+
+        <div class="keypoint">
+          <p class="keypoint-title">캐즘(Chasm) — 죽음의 계곡</p>
+          <p class="keypoint-body">
+            조기 수용자와 전기 다수 사이에는 <strong>캐즘(Chasm)</strong>이라 불리는 수요 단절 구간이 존재한다. 초기시장(혁신자 + 조기 수용자)에서 성공한 제품이 주류시장(전기 다수 이후)에 안착하는 것은 전혀 다른 게임이다. 스타트업 업계에서 창업 3년 차에 찾아오는 "죽음의 계곡"이 이에 해당한다. Geoffrey Moore의 <em>Crossing the Chasm</em>(1991)은 이 간극을 넘는 전략을 집중적으로 다룬다.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>마케팅 시사점:</strong> PLC(제품 수명주기)의 각 단계별 주요 타깃 집단이 다르므로, 단계가 바뀔 때마다 타깃과 메시지를 재설계해야 한다. 도입기에는 혁신자에게 기술적 가치를 전달하고, 성장기에는 조기 수용자의 구전을 적극 활용한다.
+        </div>
+      </div>
+
+      <!-- CLOSING -->
+      <div class="closing-box">
+        <p class="closing-box-label">마무리</p>
+        <h3>소비자를 안다는 것은 행동의 구조를 이해하는 것이다</h3>
+        <p>
+          소비자 행동은 단순한 구매 순간이 아니라 욕구 인식에서 구매 후 행동까지 이어지는 복잡한 과정이다. B2C와 B2B의 차이, 의사결정 단계별 장벽, 만족도를 결정하는 기대의 힘, 그리고 혁신이 시장에 퍼지는 속도와 패턴을 이해해야 효과적인 마케팅 전략이 나온다. 특히 기존 고객 유지가 신규 고객 획득보다 압도적으로 효율적이라는 데이터는, 마케팅 예산 배분 결정에 직접적인 시사점을 준다.
+        </p>
+        <a href="marketing_blog9.html" class="next-post">
+          다음 강의 노트 — 마케팅 조사의 이해 →
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+        </a>
+      </div>
+
+    </article>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-toc">
+        <p class="sidebar-title">목차</p>
+        <ul class="sidebar-toc-list">
+          <li><a href="#sec1" class="active"><span class="sidebar-toc-num">01</span> 소비자 정의와 역할</a></li>
+          <li><a href="#sec2"><span class="sidebar-toc-num">02</span> B2C vs B2B</a></li>
+          <li><a href="#sec3"><span class="sidebar-toc-num">03</span> 5단계 의사결정</a></li>
+          <li><a href="#sec4"><span class="sidebar-toc-num">04</span> 기대 불일치 모형</a></li>
+          <li><a href="#sec5"><span class="sidebar-toc-num">05</span> 고객 유지 vs 획득</a></li>
+          <li><a href="#sec6"><span class="sidebar-toc-num">06</span> 혁신 확산 & 캐즘</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-meta">
+        <p class="sidebar-title">글 정보</p>
+        <div class="sidebar-meta-row"><span class="smr-label">카테고리</span><span class="smr-val">강의 노트</span></div>
+        <div class="sidebar-meta-row"><span class="smr-label">수업</span><span class="smr-val">마케팅관리</span></div>
+        <div class="sidebar-meta-row"><span class="smr-label">주차</span><span class="smr-val">Week 10</span></div>
+        <div class="sidebar-meta-row"><span class="smr-label">날짜</span><span class="smr-val">2026.05.10</span></div>
+        <div class="sidebar-meta-row"><span class="smr-label">읽기</span><span class="smr-val">약 12분</span></div>
+        <div class="sidebar-meta-row"><span class="smr-label">언어</span><span class="smr-val">KO / EN / MN</span></div>
+      </div>
+      <div class="sidebar-related">
+        <p class="sidebar-title">관련 글</p>
+        <a href="marketing_blog9.html" class="related-item">
+          <span class="related-cat">강의 노트 · Week 12</span>
+          <span class="related-title">마케팅 조사의 이해 — 데이터에서 인사이트까지</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">강의 노트 · Week 11</span>
+          <span class="related-title">시장 세분화와 타깃 마케팅 전략</span>
+        </a>
+        <a href="#" class="related-item">
+          <span class="related-cat">강의 노트 · Week 9</span>
+          <span class="related-title">브랜드 자산과 포지셔닝 전략</span>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <a href="index.html" class="footer-logo-sm">LEN<span class="footer-logo-dot">·</span>LAB</a>
+    <span>© 2026 LENLAB — Khuslen. All rights reserved.</span>
+    <div class="footer-links-sm">
+      <a href="index.html">Home</a>
+      <a href="index.html#posts">Blog</a>
+      <a href="https://github.com/Khuslen09" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+    (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+
+    let isLight=localStorage.getItem('lenlab-theme')==='light';
+    function applyTheme(){document.documentElement.classList.toggle('light',isLight);document.getElementById('themeIcon').textContent=isLight?'☀︎':'☾';}
+    function toggleTheme(){isLight=!isLight;localStorage.setItem('lenlab-theme',isLight?'light':'dark');applyTheme();}
+    applyTheme();
+
+    let currentLang=localStorage.getItem('lenlab-lang')||'ko';
+    function setLang(lang){currentLang=lang;['ko','en','mn'].forEach(l=>{const b=document.getElementById('btn-'+l);if(b)b.classList.toggle('active',l===lang);});document.documentElement.lang=lang;localStorage.setItem('lenlab-lang',lang);}
+    setLang(currentLang);
+
+    const sideLinks=document.querySelectorAll('.sidebar-toc-list a');
+    const sections=document.querySelectorAll('.sec');
+    const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){const id=entry.target.id;sideLinks.forEach(a=>{a.classList.toggle('active',a.getAttribute('href')==='#'+id);});}});},{rootMargin:'-20% 0px -60% 0px'});
+    sections.forEach(s=>observer.observe(s));
+  </script>
+
+</body>
+</html>
